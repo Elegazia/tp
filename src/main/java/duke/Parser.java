@@ -6,18 +6,18 @@ import java.util.List;
 import java.util.Map;
 
 public class Parser {
-    public ParsedCommand parse(String input) throws AppException {
+    public ParsedCommand parse(String input) throws IllegalArgumentException {
         if (input == null || input.isBlank()) {
-            throw new AppException("Please enter a command.");
+            throw new IllegalArgumentException("Please enter a command.");
         }
 
         if (!input.startsWith("/")) {
-            throw new AppException("Commands must start with '/'.");
+            throw new IllegalArgumentException("Commands must start with '/'.");
         }
 
         List<String> tokens = tokenise(input);
         if (tokens.isEmpty()) {
-            throw new AppException("Please enter a command.");
+            throw new IllegalArgumentException("Please enter a command.");
         }
 
         String commandWord = tokens.get(0).substring(1).toLowerCase();
@@ -33,40 +33,40 @@ public class Parser {
         case "value" -> new ParsedCommand(CommandType.VALUE, null, null, null, null, null, null, null);
         case "help" -> new ParsedCommand(CommandType.HELP, null, null, null, null, null, null, null);
         case "exit" -> new ParsedCommand(CommandType.EXIT, null, null, null, null, null, null, null);
-        default -> throw new AppException("Unknown command: " + commandWord);
+        default -> throw new IllegalArgumentException("Unknown command: " + commandWord);
         };
     }
 
-    private ParsedCommand parseCreate(List<String> tokens) throws AppException {
+    private ParsedCommand parseCreate(List<String> tokens) throws IllegalArgumentException {
         if (tokens.size() < 2) {
-            throw new AppException("Usage: /create NAME");
+            throw new IllegalArgumentException("Usage: /create NAME");
         }
         String name = joinTail(tokens, 1);
         return new ParsedCommand(CommandType.CREATE, name, null, null, null, null, null, null);
     }
 
-    private ParsedCommand parseUse(List<String> tokens) throws AppException {
+    private ParsedCommand parseUse(List<String> tokens) throws IllegalArgumentException {
         if (tokens.size() < 2) {
-            throw new AppException("Usage: /use NAME");
+            throw new IllegalArgumentException("Usage: /use NAME");
         }
         String name = joinTail(tokens, 1);
         return new ParsedCommand(CommandType.USE, name, null, null, null, null, null, null);
     }
 
-    private ParsedCommand parseList(List<String> tokens) throws AppException {
+    private ParsedCommand parseList(List<String> tokens) throws IllegalArgumentException {
         if (tokens.size() == 1) {
             return new ParsedCommand(CommandType.LIST, null, null, null, null, null, null, null);
         }
 
         String target = tokens.get(1).toLowerCase();
         if (!target.equals("portfolios") && !target.equals("holdings")) {
-            throw new AppException("Usage: /list or /list portfolios or /list holdings");
+            throw new IllegalArgumentException("Usage: /list or /list portfolios or /list holdings");
         }
 
         return new ParsedCommand(CommandType.LIST, null, null, null, null, null, target, null);
     }
 
-    private ParsedCommand parseAdd(List<String> tokens) throws AppException {
+    private ParsedCommand parseAdd(List<String> tokens) throws IllegalArgumentException {
         Map<String, String> options = parseOptions(tokens);
         AssetType type = AssetType.fromString(requireOption(options, "--type"));
         String ticker = normaliseTicker(requireOption(options, "--ticker"));
@@ -74,33 +74,33 @@ public class Parser {
         return new ParsedCommand(CommandType.ADD, null, type, ticker, qty, null, null, null);
     }
 
-    private ParsedCommand parseRemove(List<String> tokens) throws AppException {
+    private ParsedCommand parseRemove(List<String> tokens) throws IllegalArgumentException {
         Map<String, String> options = parseOptions(tokens);
         AssetType type = AssetType.fromString(requireOption(options, "--type"));
         String ticker = normaliseTicker(requireOption(options, "--ticker"));
         return new ParsedCommand(CommandType.REMOVE, null, type, ticker, null, null, null, null);
     }
 
-    private ParsedCommand parseSet(List<String> tokens) throws AppException {
+    private ParsedCommand parseSet(List<String> tokens) throws IllegalArgumentException {
         Map<String, String> options = parseOptions(tokens);
         String ticker = normaliseTicker(requireOption(options, "--ticker"));
         double price = parsePositiveDouble(requireOption(options, "--price"), "Price must be > 0");
         return new ParsedCommand(CommandType.SET, null, null, ticker, null, price, null, null);
     }
 
-    private ParsedCommand parseSetMany(List<String> tokens) throws AppException {
+    private ParsedCommand parseSetMany(List<String> tokens) throws IllegalArgumentException {
         Map<String, String> options = parseOptions(tokens);
         String file = requireOption(options, "--file");
         Path filePath = Paths.get(file);
         return new ParsedCommand(CommandType.SET_MANY, null, null, null, null, null, null, filePath);
     }
 
-    private Map<String, String> parseOptions(List<String> tokens) throws AppException {
+    private Map<String, String> parseOptions(List<String> tokens) throws IllegalArgumentException {
         Map<String, String> options = new HashMap<>();
 
         for (int i = 1; i < tokens.size(); i += 2) {
             if (i + 1 >= tokens.size()) {
-                throw new AppException("Missing value for option: " + tokens.get(i));
+                throw new IllegalArgumentException("Missing value for option: " + tokens.get(i));
             }
             String key = tokens.get(i);
             String value = tokens.get(i + 1);
@@ -110,23 +110,23 @@ public class Parser {
         return options;
     }
 
-    private String requireOption(Map<String, String> options, String key) throws AppException {
+    private String requireOption(Map<String, String> options, String key) throws IllegalArgumentException {
         String value = options.get(key);
         if (value == null || value.isBlank()) {
-            throw new AppException("Missing required option: " + key);
+            throw new IllegalArgumentException("Missing required option: " + key);
         }
         return value;
     }
 
-    private double parsePositiveDouble(String rawValue, String errorMessage) throws AppException {
+    private double parsePositiveDouble(String rawValue, String errorMessage) throws IllegalArgumentException {
         try {
             double value = Double.parseDouble(rawValue);
             if (value <= 0) {
-                throw new AppException(errorMessage);
+                throw new IllegalArgumentException(errorMessage);
             }
             return value;
         } catch (NumberFormatException e) {
-            throw new AppException(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
         }
     }
 
@@ -138,7 +138,7 @@ public class Parser {
         return String.join(" ", tokens.subList(startIndex, tokens.size()));
     }
 
-    private List<String> tokenise(String input) throws AppException {
+    private List<String> tokenise(String input) throws IllegalArgumentException {
         List<String> tokens = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean inQuotes = false;
@@ -163,7 +163,7 @@ public class Parser {
         }
 
         if (inQuotes) {
-            throw new AppException("Unclosed double quote in command.");
+            throw new IllegalArgumentException("Unclosed double quote in command.");
         }
 
         if (current.length() > 0) {
