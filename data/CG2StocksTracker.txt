@@ -1,0 +1,5 @@
+ACTIVE|portfolio 1
+PORTFOLIO|portfolio 1
+HOLDING|portfolio 1|STOCK|AAPL|1.0|189.2|v1
+HOLDING|portfolio 1|STOCK|APPL|2.0||v1
+PORTFOLIO|portfolio

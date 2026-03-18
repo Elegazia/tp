@@ -1,3 +1,5 @@
+package duke;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,10 +40,10 @@ public class Portfolio {
         return holdings.get(makeKey(assetType, ticker));
     }
 
-    public void removeHolding(AssetType assetType, String ticker) throws AppException {
+    public void removeHolding(AssetType assetType, String ticker) throws IllegalArgumentException {
         String key = makeKey(assetType, ticker);
         if (!holdings.containsKey(key)) {
-            throw new AppException("Holding not found: " + ticker + " (" + assetType.toDisplay() + ")");
+            throw new IllegalArgumentException("Holding not found: " + ticker + " (" + assetType.toDisplay() + ")");
         }
         holdings.remove(key);
     }

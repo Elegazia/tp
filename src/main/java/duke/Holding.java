@@ -1,3 +1,5 @@
+package duke;
+
 public class Holding {
     private final AssetType assetType;
     private final String ticker;
