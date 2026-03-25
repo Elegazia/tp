@@ -1,6 +1,6 @@
 package duke;
-import java.util.List;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Scanner;
 
 public class Ui {
@@ -9,23 +9,26 @@ public class Ui {
     private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.############");
 
     public String readCommand() {
+        if (!INPUT.hasNextLine()) {
+            return "/exit";
+        }
         return INPUT.nextLine().trim();
     }
 
     public void showWelcome() {
         System.out.println("Welcome to Stocks Tracker!");
         System.out.println("""
-                             ______  ________   ______   __    __  __    __   ______  \r
-                            /      \\|        \\ /      \\ |  \\  |  \\|  \\  /  \\ /      \\ \r
-                           |  $$$$$$\\\\$$$$$$$$|  $$$$$$\\| $$\\ | $$| $$ /  $$|  $$$$$$\\\r
-                           | $$___\\$$  | $$   | $$  | $$| $$$\\| $$| $$/  $$ | $$___\\$$\r
-                            \\$$    \\   | $$   | $$  | $$| $$$$\\ $$| $$  $$   \\$$    \\ \r
-                            _\\$$$$$$\\  | $$   | $$  | $$| $$\\$$ $$| $$$$$\\   _\\$$$$$$\\\r
-                           |  \\__| $$  | $$   | $$__/ $$| $$ \\$$$$| $$ \\$$\\ |  \\__| $$\r
-                            \\$$    $$  | $$    \\$$    $$| $$  \\$$$| $$  \\$$\\ \\$$    $$\r
-                             \\$$$$$$    \\$$     \\$$$$$$  \\$$   \\$$ \\$$   \\$$  \\$$$$$$ \r
-                                                                                      \r
-                                                                                      \r""");
+                             ______  ________   ______   __    __  __    __   ______
+                            /      \\|        \\ /      \\ |  \\  |  \\|  \\  /  \\ /      \\
+                           |  $$$$$$\\\\$$$$$$$$|  $$$$$$\\| $$\\ | $$| $$ /  $$|  $$$$$$\\
+                           | $$___\\$$  | $$   | $$  | $$| $$$\\| $$| $$/  $$ | $$___\\$$
+                            \\$$    \\   | $$   | $$  | $$| $$$$\\ $$| $$  $$   \\$$    \\
+                            _\\$$$$$$\\  | $$   | $$  | $$| $$\\$$ $$| $$$$$\\   _\\$$$$$$\\
+                           |  \\__| $$  | $$   | $$__/ $$| $$ \\$$$$| $$ \\$$\\ |  \\__| $$
+                            \\$$    $$  | $$    \\$$    $$| $$  \\$$$| $$  \\$$\\ \\$$    $$
+                             \\$$$$$$    \\$$     \\$$$$$$  \\$$   \\$$ \\$$   \\$$  \\$$$$$$
+
+                            """);
         System.out.println("Type /help to see available commands.");
     }
 
@@ -61,6 +64,8 @@ public class Ui {
     }
 
     public void showPortfolios(PortfolioBook portfolioBook) {
+        assert portfolioBook != null : "portfolioBook must not be null";
+        assert portfolioBook.getPortfolios() != null : "portfolios must not be null";
         List<Portfolio> portfolios = portfolioBook.getPortfolios();
         System.out.println("Portfolios (" + portfolios.size() + "):");
         for (Portfolio portfolio : portfolios) {
@@ -70,6 +75,7 @@ public class Ui {
     }
 
     public void showAddedHolding(Holding holding) {
+        assert holding != null : "holding must not be null";
         System.out.println("Added holding:");
         System.out.println("Type: " + holding.getAssetType().toDisplay());
         System.out.println("Ticker: " + holding.getTicker());
@@ -77,6 +83,7 @@ public class Ui {
     }
 
     public void showHoldings(Portfolio portfolio) {
+        assert portfolio != null : "portfolio must not be null";
         System.out.println("Portfolio: " + portfolio.getName());
 
         List<Holding> holdings = portfolio.getHoldings();
@@ -103,12 +110,14 @@ public class Ui {
     }
 
     public void showPortfolioValue(Portfolio portfolio) {
+        assert portfolio != null : "portfolio must not be null";
         System.out.println("Portfolio: " + portfolio.getName());
         System.out.println("Total value (priced holdings): " + formatMoney(portfolio.getPricedTotalValue()));
         System.out.println("Unpriced holdings: " + portfolio.countUnpricedHoldings());
     }
 
     public void showBulkUpdateResult(Storage.BulkUpdateResult result) {
+        assert result != null : "result must not be null";
         System.out.println("Updated prices: " + result.successCount() + " succeeded, "
                 + result.failedCount() + " failed");
 
