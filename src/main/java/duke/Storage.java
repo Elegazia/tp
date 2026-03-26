@@ -83,7 +83,9 @@ public class Storage {
 
         for (Portfolio portfolio : portfolioBook.getPortfolios()) {
             assert portfolio != null : "Portfolio list should not contain null entries";
-            lines.add("PORTFOLIO|" + portfolio.getName());
+            lines.add("PORTFOLIO|"
+                    + portfolio.getName() + "|"
+                    + portfolio.getTotalRealizedPnl());
             for (Holding holding : portfolio.getHoldings()) {
                 assert holding != null : "Holdings list should not contain null entries";
                 String priceText = holding.hasPrice() ? String.valueOf(holding.getLastPrice()) : "";
@@ -92,6 +94,7 @@ public class Storage {
                         + holding.getAssetType().name() + "|"
                         + holding.getTicker() + "|"
                         + holding.getQuantity() + "|"
+                        + holding.getAverageBuyPrice() + "|"
                         + priceText);
             }
         }
@@ -182,7 +185,13 @@ public class Storage {
     private void loadHolding(String[] parts, PortfolioBook portfolioBook) throws AppException {
         assert parts != null : "parts must not be null";
         assert portfolioBook != null : "portfolioBook must not be null";
-        if (parts.length != 6) {
+
+        if (parts.length == 6) {
+            loadLegacyHolding(parts, portfolioBook);
+            return;
+        }
+
+        if (parts.length != 7) {
             throw new AppException(CORRUPTED_FILE_MESSAGE);
         }
 
@@ -190,11 +199,26 @@ public class Storage {
         AssetType assetType = parseAssetType(parts[2]);
         String ticker = requireNonBlank(parts[3]).toUpperCase();
         double quantity = parsePositiveDouble(parts[4]);
-        double restoredPrice = parsePositiveDouble(parts[5]);
+        double averageBuyPrice = parsePositiveDouble(parts[5]);
+        Double lastPrice = parseOptionalPositiveDouble(parts[6]);
+
         portfolioBook.ensurePortfolioExists(portfolioName);
         Portfolio portfolio = portfolioBook.getPortfolio(portfolioName);
         assert portfolio != null : "Portfolio should exist after ensurePortfolioExists";
-        portfolio.addHolding(assetType, ticker, quantity, restoredPrice);
+        portfolio.restoreHolding(assetType, ticker, quantity, lastPrice, averageBuyPrice);
+    }
+
+    private void loadLegacyHolding(String[] parts, PortfolioBook portfolioBook) throws AppException {
+        String portfolioName = requireNonBlank(parts[1]);
+        AssetType assetType = parseAssetType(parts[2]);
+        String ticker = requireNonBlank(parts[3]).toUpperCase();
+        double quantity = parsePositiveDouble(parts[4]);
+        double restoredPrice = parsePositiveDouble(parts[5]);
+
+        portfolioBook.ensurePortfolioExists(portfolioName);
+        Portfolio portfolio = portfolioBook.getPortfolio(portfolioName);
+        assert portfolio != null : "Portfolio should exist after ensurePortfolioExists";
+        portfolio.restoreHolding(assetType, ticker, quantity, restoredPrice, restoredPrice);
     }
 
     private void createFileIfMissing() throws AppException {
@@ -218,12 +242,18 @@ public class Storage {
     }
 
     private void loadPortfolio(String[] parts, PortfolioBook portfolioBook) throws AppException {
-        if (parts.length != 2) {
+        if (parts.length != 2 && parts.length != 3) {
             throw new AppException(CORRUPTED_FILE_MESSAGE);
         }
 
         String name = requireNonBlank(parts[1]);
         portfolioBook.createPortfolio(name);
+
+        if (parts.length == 3) {
+            Portfolio portfolio = portfolioBook.getPortfolio(name);
+            assert portfolio != null : "Portfolio should exist immediately after creation";
+            portfolio.setTotalRealizedPnl(parseAnyDouble(parts[2]));
+        }
     }
 
     private String parseActivePortfolio(String[] parts) throws AppException {
@@ -265,6 +295,22 @@ public class Storage {
                 throw new AppException(CORRUPTED_FILE_MESSAGE);
             }
             return value;
+        } catch (NumberFormatException e) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
+        }
+    }
+
+    private Double parseOptionalPositiveDouble(String rawValue) throws AppException {
+        String trimmed = rawValue == null ? "" : rawValue.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return parsePositiveDouble(trimmed);
+    }
+
+    private double parseAnyDouble(String rawValue) throws AppException {
+        try {
+            return Double.parseDouble(rawValue.trim());
         } catch (NumberFormatException e) {
             throw new AppException(CORRUPTED_FILE_MESSAGE);
         }

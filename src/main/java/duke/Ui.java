@@ -161,10 +161,11 @@ public class Ui {
 
         List<Holding> holdings = portfolio.getHoldings();
         for (Holding holding : holdings) {
+            String lastPriceText = holding.hasPrice() ? formatMoney(holding.getLastPrice()) : "-";
             System.out.println(holding.getTicker()
                     + ": Quantity " + formatNumber(holding.getQuantity())
                     + ", Avg. Price = " + formatMoney(holding.getAverageBuyPrice())
-                    + ", Last Price = " + formatMoney(holding.getLastPrice())
+                    + ", Last Price = " + lastPriceText
                     + ", Unrealised P&L = " + formatSignedMoney(holding.getUnrealizedPnl()));
         }
 
