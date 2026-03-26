@@ -9,13 +9,20 @@ import java.util.List;
 
 public class Storage {
     private final Path filePath;
+    private static final String CORRUPTED_FILE_MESSAGE = "Corrupted storage file.";
 
     public Storage(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("filePath must not be null or blank");
+        }
+
         this.filePath = Paths.get(filePath);
+        assert this.filePath.getFileName() != null : "Storage path must reference a file";
     }
 
     public PortfolioBook load() throws AppException {
         createFileIfMissing();
+        assert Files.exists(filePath) : "Storage file should exist after initialization";
 
         PortfolioBook portfolioBook = new PortfolioBook();
         String activePortfolioName = null;
@@ -23,72 +30,69 @@ public class Storage {
         try {
             List<String> lines = Files.readAllLines(filePath);
 
-            for (String line : lines) {
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
                 if (line.isBlank()) {
                     continue;
                 }
 
                 String[] parts = line.split("\\|", -1);
-                String recordType = parts[0];
+                String recordType = parts[0].trim().toUpperCase();
+
+                if (recordType.isBlank()) {
+                    throw new AppException(CORRUPTED_FILE_MESSAGE);
+                }
 
                 switch (recordType) {
                 case "ACTIVE":
-                    if (parts.length >= 2 && !parts[1].isBlank()) {
-                        activePortfolioName = parts[1];
-                    }
+                    activePortfolioName = parseActivePortfolio(parts);
                     break;
                 case "PORTFOLIO":
-                    if (parts.length != 2) {
-                        throw new AppException("Corrupted storage file.");
-                    }
-                    portfolioBook.createPortfolio(parts[1]);
+                    loadPortfolio(parts, portfolioBook);
                     break;
                 case "HOLDING":
-                    if (parts.length != 7 && parts.length != 8) {
-                        throw new AppException("Corrupted storage file.");
-                    }
                     loadHolding(parts, portfolioBook);
                     break;
-                case "PORTFOLIO_PNL":
-                    if (parts.length != 4) {
-                        throw new AppException("Corrupted storage file.");
-                    }
-                    loadPortfolioPnl(parts, portfolioBook);
-                    break;
                 default:
-                    throw new AppException("Corrupted storage file.");
+                    throw new AppException(CORRUPTED_FILE_MESSAGE);
                 }
+
+                assert i >= 0 : "Loop index must be non-negative";
             }
 
             if (activePortfolioName != null) {
-                portfolioBook.usePortfolio(activePortfolioName);
+                applyActivePortfolio(portfolioBook, activePortfolioName);
             }
 
             return portfolioBook;
+        } catch (IllegalArgumentException e) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
         } catch (IOException e) {
             throw new AppException("Unable to read storage file.");
         }
     }
 
     public void save(PortfolioBook portfolioBook) throws AppException {
+        if (portfolioBook == null) {
+            throw new IllegalArgumentException("portfolioBook must not be null");
+        }
         createFileIfMissing();
 
         List<String> lines = new ArrayList<>();
         lines.add("ACTIVE|" + nullToEmpty(portfolioBook.getActivePortfolioName()));
 
         for (Portfolio portfolio : portfolioBook.getPortfolios()) {
+            assert portfolio != null : "Portfolio list should not contain null entries";
             lines.add("PORTFOLIO|" + portfolio.getName());
-            lines.add("PORTFOLIO_PNL|" + portfolio.getName() + "|" + portfolio.getTotalRealizedPnl() + "|v1");
             for (Holding holding : portfolio.getHoldings()) {
+                assert holding != null : "Holdings list should not contain null entries";
                 String priceText = holding.hasPrice() ? String.valueOf(holding.getLastPrice()) : "";
                 lines.add("HOLDING|"
                         + portfolio.getName() + "|"
                         + holding.getAssetType().name() + "|"
                         + holding.getTicker() + "|"
                         + holding.getQuantity() + "|"
-                        + priceText + "|"
-                        + holding.getAverageBuyPrice() + "|"
-                        + "v2");
+                        + priceText);
             }
         }
 
@@ -100,8 +104,18 @@ public class Storage {
     }
 
     public BulkUpdateResult loadPriceUpdates(Path csvPath, Portfolio portfolio) throws AppException {
+        if (csvPath == null) {
+            throw new IllegalArgumentException("csvPath must not be null");
+        }
+        if (portfolio == null) {
+            throw new IllegalArgumentException("portfolio must not be null");
+        }
+
         if (!Files.exists(csvPath)) {
             throw new AppException("File not found: " + csvPath);
+        }
+        if (!Files.isRegularFile(csvPath)) {
+            throw new AppException("Not a file: " + csvPath);
         }
 
         int successCount = 0;
@@ -134,6 +148,11 @@ public class Storage {
 
                 String ticker = parts[0].trim().toUpperCase();
                 String priceText = parts[1].trim();
+                if (ticker.isBlank()) {
+                    failedCount++;
+                    failures.add("line " + (i + 1) + " - ticker: ? reason: ticker is blank");
+                    continue;
+                }
 
                 try {
                     double price = Double.parseDouble(priceText);
@@ -161,55 +180,21 @@ public class Storage {
     }
 
     private void loadHolding(String[] parts, PortfolioBook portfolioBook) throws AppException {
-        String portfolioName = parts[1];
-        AssetType assetType = AssetType.fromString(parts[2]);
-        String ticker = parts[3].toUpperCase();
-        double quantity;
-
-        try {
-            quantity = Double.parseDouble(parts[4]);
-        } catch (NumberFormatException e) {
-            throw new AppException("Corrupted storage file.");
+        assert parts != null : "parts must not be null";
+        assert portfolioBook != null : "portfolioBook must not be null";
+        if (parts.length != 6) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
         }
 
+        String portfolioName = requireNonBlank(parts[1]);
+        AssetType assetType = parseAssetType(parts[2]);
+        String ticker = requireNonBlank(parts[3]).toUpperCase();
+        double quantity = parsePositiveDouble(parts[4]);
+        double restoredPrice = parsePositiveDouble(parts[5]);
         portfolioBook.ensurePortfolioExists(portfolioName);
         Portfolio portfolio = portfolioBook.getPortfolio(portfolioName);
-
-        Double lastPrice = null;
-        if (!parts[5].isBlank()) {
-            try {
-                lastPrice = Double.parseDouble(parts[5]);
-            } catch (NumberFormatException e) {
-                throw new AppException("Corrupted storage file.");
-            }
-        }
-
-        double averageBuyPrice;
-        if (parts.length == 7) {
-            averageBuyPrice = lastPrice == null ? 0.0 : lastPrice;
-        } else {
-            try {
-                averageBuyPrice = Double.parseDouble(parts[6]);
-            } catch (NumberFormatException e) {
-                throw new AppException("Corrupted storage file.");
-            }
-        }
-
-        portfolio.restoreHolding(assetType, ticker, quantity, lastPrice, averageBuyPrice);
-    }
-
-    private void loadPortfolioPnl(String[] parts, PortfolioBook portfolioBook) throws AppException {
-        String portfolioName = parts[1];
-        double realizedPnl;
-        try {
-            realizedPnl = Double.parseDouble(parts[2]);
-        } catch (NumberFormatException e) {
-            throw new AppException("Corrupted storage file.");
-        }
-
-        portfolioBook.ensurePortfolioExists(portfolioName);
-        Portfolio portfolio = portfolioBook.getPortfolio(portfolioName);
-        portfolio.setTotalRealizedPnl(realizedPnl);
+        assert portfolio != null : "Portfolio should exist after ensurePortfolioExists";
+        portfolio.addHolding(assetType, ticker, quantity, restoredPrice);
     }
 
     private void createFileIfMissing() throws AppException {
@@ -222,8 +207,66 @@ public class Storage {
             if (!Files.exists(filePath)) {
                 Files.createFile(filePath);
             }
+
+            if (Files.isDirectory(filePath)) {
+                throw new AppException("Storage path is a directory.");
+            }
+            assert Files.exists(filePath) : "Storage file must exist after creation";
         } catch (IOException e) {
             throw new AppException("Unable to create storage file.");
+        }
+    }
+
+    private void loadPortfolio(String[] parts, PortfolioBook portfolioBook) throws AppException {
+        if (parts.length != 2) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
+        }
+
+        String name = requireNonBlank(parts[1]);
+        portfolioBook.createPortfolio(name);
+    }
+
+    private String parseActivePortfolio(String[] parts) throws AppException {
+        if (parts.length != 2) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
+        }
+
+        String candidate = parts[1].trim();
+        return candidate.isBlank() ? null : candidate;
+    }
+
+    private void applyActivePortfolio(PortfolioBook portfolioBook, String activePortfolioName) throws AppException {
+        try {
+            portfolioBook.usePortfolio(activePortfolioName);
+        } catch (AppException e) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
+        }
+    }
+
+    private String requireNonBlank(String value) throws AppException {
+        if (value == null || value.isBlank()) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
+        }
+        return value.trim();
+    }
+
+    private AssetType parseAssetType(String rawType) throws AppException {
+        try {
+            return AssetType.fromString(rawType);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
+        }
+    }
+
+    private double parsePositiveDouble(String rawValue) throws AppException {
+        try {
+            double value = Double.parseDouble(rawValue);
+            if (value <= 0) {
+                throw new AppException(CORRUPTED_FILE_MESSAGE);
+            }
+            return value;
+        } catch (NumberFormatException e) {
+            throw new AppException(CORRUPTED_FILE_MESSAGE);
         }
     }
 
