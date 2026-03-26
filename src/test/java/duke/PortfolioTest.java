@@ -52,4 +52,14 @@ public class PortfolioTest {
         assertEquals(400.0, result.soldPrice());
         assertEquals(0.0, result.realizedPnl());
     }
+
+    @Test
+    void getCurrentTotalValue_sumsQuantityTimesUnitPriceAcrossHoldings() {
+        Portfolio portfolio = new Portfolio("demo");
+        portfolio.addHolding(AssetType.STOCK, "VOO", 1.5, 320);
+        portfolio.addHolding(AssetType.ETF, "QQQ", 2, 400);
+        portfolio.setPriceForTicker("VOO", 600);
+
+        assertEquals(1700.0, portfolio.getCurrentTotalValue());
+    }
 }

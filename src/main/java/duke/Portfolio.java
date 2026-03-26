@@ -121,6 +121,10 @@ public class Portfolio {
     }
 
     public double getPricedTotalValue() {
+        return getCurrentTotalValue();
+    }
+
+    public double getCurrentTotalValue() {
         double total = 0.0;
         for (Holding holding : holdings.values()) {
             if (holding.hasPrice()) {
