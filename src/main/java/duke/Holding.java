@@ -8,6 +8,16 @@ public class Holding {
     private double averageBuyPrice;
 
     public Holding(AssetType assetType, String ticker, double quantity, double purchasePrice) {
+        if (assetType == null) {
+            throw new IllegalArgumentException("assetType must not be null");
+        }
+        if (ticker == null || ticker.isBlank()) {
+            throw new IllegalArgumentException("ticker must not be null or blank");
+        }
+        if (quantity <= 0 || purchasePrice <= 0) {
+            throw new IllegalArgumentException("quantity and purchasePrice must be > 0");
+        }
+
         this.assetType = assetType;
         this.ticker = ticker.toUpperCase();
         this.quantity = quantity;
@@ -36,6 +46,10 @@ public class Holding {
     }
 
     public void addQuantity(double quantityToAdd, double purchasePrice) {
+        if (quantityToAdd <= 0 || purchasePrice <= 0) {
+            throw new IllegalArgumentException("quantityToAdd and purchasePrice must be > 0");
+        }
+
         double totalCostBefore = averageBuyPrice * quantity;
         double addedCost = purchasePrice * quantityToAdd;
         quantity += quantityToAdd;
@@ -45,6 +59,9 @@ public class Holding {
     public double removeQuantity(double quantityToRemove, double sellPrice) {
         if (quantityToRemove <= 0 || quantityToRemove > quantity) {
             throw new IllegalArgumentException("Invalid quantity to remove");
+        }
+        if (sellPrice <= 0) {
+            throw new IllegalArgumentException("sellPrice must be > 0");
         }
 
         double realizedPnl = (sellPrice - averageBuyPrice) * quantityToRemove;
@@ -58,6 +75,9 @@ public class Holding {
     }
 
     public void setLastPrice(double lastPrice) {
+        if (lastPrice <= 0) {
+            throw new IllegalArgumentException("lastPrice must be > 0");
+        }
         this.lastPrice = lastPrice;
     }
 
@@ -73,6 +93,13 @@ public class Holding {
     }
 
     public void restoreMarketData(Double restoredLastPrice, double restoredAverageBuyPrice) {
+        if (restoredLastPrice != null && restoredLastPrice <= 0) {
+            throw new IllegalArgumentException("restoredLastPrice must be > 0");
+        }
+        if (restoredAverageBuyPrice <= 0) {
+            throw new IllegalArgumentException("restoredAverageBuyPrice must be > 0");
+        }
+
         this.lastPrice = restoredLastPrice;
         this.averageBuyPrice = restoredAverageBuyPrice;
     }

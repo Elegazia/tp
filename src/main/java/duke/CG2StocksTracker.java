@@ -26,7 +26,6 @@ public class CG2StocksTracker {
     }
 
     public static void main(String[] args) {
-        assert false: "dummy assertion set to fail";
         new CG2StocksTracker(FILE_PATH).run();
     }
 
