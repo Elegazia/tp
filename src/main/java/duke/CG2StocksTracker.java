@@ -26,6 +26,7 @@ public class CG2StocksTracker {
     }
 
     public static void main(String[] args) {
+        assert false: "dummy assertion set to fail";
         new CG2StocksTracker(FILE_PATH).run();
     }
 
@@ -37,12 +38,16 @@ public class CG2StocksTracker {
 
             try {
                 ParsedCommand command = parser.parse(input);
+                ui.beginResponse();
                 boolean shouldContinue = execute(command);
+                ui.endResponse();
                 if (!shouldContinue) {
                     break;
                 }
             } catch (AppException e) {
+                ui.beginResponse();
                 ui.showError(e.getMessage());
+                ui.endResponse();
             }
         }
     }
@@ -101,13 +106,23 @@ public class CG2StocksTracker {
     private void handleList(ParsedCommand command) throws AppException {
         String target = command.listTarget();
 
-        if ("portfolios".equals(target)) {
-            ui.showPortfolios(portfolioBook);
+        if ("--portfolios".equals(target)) {
+            ui.showPortfolioSummaries(portfolioBook);
             return;
         }
 
-        if ("holdings".equals(target)) {
-            ui.showHoldings(portfolioBook.getActivePortfolio());
+        if ("--stock".equals(target)) {
+            ui.showHoldings(portfolioBook.getActivePortfolio(), AssetType.STOCK);
+            return;
+        }
+
+        if ("--etf".equals(target)) {
+            ui.showHoldings(portfolioBook.getActivePortfolio(), AssetType.ETF);
+            return;
+        }
+
+        if ("--bond".equals(target)) {
+            ui.showHoldings(portfolioBook.getActivePortfolio(), AssetType.BOND);
             return;
         }
 
@@ -123,16 +138,18 @@ public class CG2StocksTracker {
         AssetType type = command.assetType();
         String ticker = command.ticker();
         double qty = command.quantity();
+        double price = command.price();
 
         boolean existed = portfolio.hasHolding(type, ticker);
-        double newQty = portfolio.addHolding(type, ticker, qty);
+        double newQty = portfolio.addHolding(type, ticker, qty, price);
         save();
 
+        Holding holding = portfolio.getHolding(type, ticker);
         if (existed) {
             ui.showMessage("Updated holding quantity: " + ticker + " (" + type.toDisplay() + ") = "
-                    + Ui.formatNumber(newQty));
+                    + Ui.formatNumber(newQty)
+                    + ", avg buy price = " + Ui.formatMoney(holding.getAverageBuyPrice()));
         } else {
-            Holding holding = portfolio.getHolding(type, ticker);
             ui.showAddedHolding(holding);
         }
     }
@@ -141,10 +158,19 @@ public class CG2StocksTracker {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         AssetType type = command.assetType();
         String ticker = command.ticker();
+        Double qty = command.quantity();
+        Double price = command.price();
 
-        portfolio.removeHolding(type, ticker);
+        Portfolio.RemoveResult result;
+        try {
+            result = portfolio.removeHolding(type, ticker, qty, price);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(e.getMessage());
+        }
         save();
-        ui.showMessage("Removed holding: " + ticker + " (" + type.toDisplay() + ")");
+        ui.showMessage("Sold " + Ui.formatNumber(result.soldQuantity())
+            + " of " + ticker + " (" + type.toDisplay() + ") at " + Ui.formatMoney(result.soldPrice())
+            + ", realized P&L = " + Ui.formatSignedMoney(result.realizedPnl()));
     }
 
     private void handleSet(ParsedCommand command) throws AppException {

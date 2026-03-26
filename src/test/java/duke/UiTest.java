@@ -34,6 +34,8 @@ public class UiTest {
         String output = capturedOut.toString();
         assertTrue(output.contains("Available commands:"));
         assertTrue(output.contains("/create NAME"));
+        assertTrue(output.contains("/list --stock"));
+        assertTrue(output.contains("/list --portfolios"));
         assertTrue(output.contains("/setmany --file FILEPATH"));
         assertTrue(output.contains("/exit"));
     }
@@ -58,8 +60,8 @@ public class UiTest {
     void showHoldings_printsPriceAndTotals() {
         Ui ui = new Ui();
         Portfolio portfolio = new Portfolio("main");
-        portfolio.addHolding(AssetType.STOCK, "AAPL", 2);
-        portfolio.addHolding(AssetType.ETF, "QQQ", 3);
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 2, 90);
+        portfolio.addHolding(AssetType.ETF, "QQQ", 3, 350);
         portfolio.setPriceForTicker("AAPL", 100);
 
         ui.showHoldings(portfolio);
@@ -67,9 +69,49 @@ public class UiTest {
         String output = capturedOut.toString();
         assertTrue(output.contains("Portfolio: main"));
         assertTrue(output.contains("1 STOCK AAPL 2 100.00 200.00"));
-        assertTrue(output.contains("2 ETF QQQ 3 - -"));
+        assertTrue(output.contains("2 ETF QQQ 3 350.00 1050.00"));
         assertTrue(output.contains("Total holdings: 2"));
-        assertTrue(output.contains("Total value: 200.00"));
+        assertTrue(output.contains("Total value: 1250.00"));
+    }
+
+    @Test
+    void showHoldings_withFilter_printsOnlyMatchingType() {
+        Ui ui = new Ui();
+        Portfolio portfolio = new Portfolio("main");
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 2, 90);
+        portfolio.addHolding(AssetType.ETF, "QQQ", 3, 350);
+
+        ui.showHoldings(portfolio, AssetType.STOCK);
+
+        String output = capturedOut.toString();
+        assertTrue(output.contains("Portfolio: main"));
+        assertTrue(output.contains("1 STOCK AAPL"));
+        assertTrue(output.contains("Total holdings: 1"));
+        assertTrue(output.contains("Total value: 180.00"));
+    }
+
+    @Test
+    void showPortfolioSummaries_sortsAlphabeticallyAndPrintsPnL() throws AppException {
+        Ui ui = new Ui();
+        PortfolioBook book = new PortfolioBook();
+        book.createPortfolio("zeta");
+        book.createPortfolio("alpha");
+
+        Portfolio alpha = book.getPortfolio("alpha");
+        alpha.addHolding(AssetType.STOCK, "VOO", 1, 300);
+        alpha.setPriceForTicker("VOO", 350);
+
+        Portfolio zeta = book.getPortfolio("zeta");
+        zeta.addHolding(AssetType.BOND, "BND", 2, 70);
+
+        ui.showPortfolioSummaries(book);
+
+        String output = capturedOut.toString();
+        assertTrue(output.contains("Portfolios (alphabetical):"));
+        int alphaIdx = output.indexOf("alpha realized=+0.00 unrealised=+50.00");
+        int zetaIdx = output.indexOf("zeta realized=+0.00 unrealised=+0.00");
+        assertTrue(alphaIdx >= 0);
+        assertTrue(zetaIdx > alphaIdx);
     }
 
     @Test
@@ -93,16 +135,24 @@ public class UiTest {
     void showPortfolioValue_printsPricedAndUnpricedCounts() {
         Ui ui = new Ui();
         Portfolio portfolio = new Portfolio("retirement");
-        portfolio.addHolding(AssetType.BOND, "BND", 10);
-        portfolio.addHolding(AssetType.STOCK, "MSFT", 1);
+        portfolio.addHolding(AssetType.BOND, "BND", 10, 70);
+        portfolio.addHolding(AssetType.STOCK, "MSFT", 1, 250);
         portfolio.setPriceForTicker("MSFT", 300);
 
         ui.showPortfolioValue(portfolio);
 
         String output = capturedOut.toString();
         assertTrue(output.contains("Portfolio: retirement"));
-        assertTrue(output.contains("Total value (priced holdings): 300.00"));
-        assertTrue(output.contains("Unpriced holdings: 1"));
+        assertTrue(output.contains("Current total value: 1000.00"));
+        assertTrue(output.contains("Realized P&L: +0.00"));
+        assertTrue(output.contains("Unrealised P&L by holding:"));
+        assertTrue(output.contains("BND: Quantity 10, Avg. Price = 70.00, Last Price = 70.00, Unrealised P&L = +0.00"));
+        assertTrue(output.contains(
+                "BND: Quantity 10, Avg. Price = 70.00, Last Price = 70.00, Unrealised P&L = +0.00"));
+
+        assertTrue(output.contains(
+            "MSFT: Quantity 1, Avg. Price = 250.00, Last Price = 300.00, Unrealised P&L = +50.00"));
+        assertTrue(output.contains("Total unrealised P&L: +50.00"));
     }
 
     @Test
@@ -110,6 +160,8 @@ public class UiTest {
         assertEquals("123.46", Ui.formatMoney(123.456));
         assertEquals("12.34", Ui.formatNumber(12.340000));
         assertEquals("1.234567890123", Ui.formatNumber(1.234567890123));
+        assertEquals("+12.30", Ui.formatSignedMoney(12.3));
+        assertEquals("-12.30", Ui.formatSignedMoney(-12.3));
     }
 
 }

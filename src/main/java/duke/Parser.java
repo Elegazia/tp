@@ -61,26 +61,34 @@ public class Parser {
         }
 
         String target = tokens.get(1).toLowerCase();
-        if (!target.equals("portfolios") && !target.equals("holdings")) {
-            throw new AppException("Usage: /list or /list portfolios or /list holdings");
+        if (target.equals("--stock") || target.equals("--etf") || target.equals("--bond")) {
+            return new ParsedCommand(CommandType.LIST, null, null, null, null, null, target, null);
         }
 
-        return new ParsedCommand(CommandType.LIST, null, null, null, null, null, target, null);
+        if (!target.equals("--portfolios")) {
+            throw new AppException("Usage: /list or /list --stock or /list --etf or /list --bond "
+                    + "or /list --portfolios");
+        }
+
+        return new ParsedCommand(CommandType.LIST, null, null, null, null, null, "--portfolios", null);
     }
 
     private ParsedCommand parseAdd(List<String> tokens) throws AppException {
         Map<String, String> options = parseOptions(tokens);
-        AssetType type = AssetType.fromString(requireOption(options, "--type"));
+        AssetType type = parseAssetType(requireOption(options, "--type"));
         String ticker = normaliseTicker(requireOption(options, "--ticker"));
         double qty = parsePositiveDouble(requireOption(options, "--qty"), "Quantity must be > 0");
-        return new ParsedCommand(CommandType.ADD, null, type, ticker, qty, null, null, null);
+        double price = parsePositiveDouble(requireOption(options, "--price"), "Price must be > 0");
+        return new ParsedCommand(CommandType.ADD, null, type, ticker, qty, price, null, null);
     }
 
     private ParsedCommand parseRemove(List<String> tokens) throws AppException {
         Map<String, String> options = parseOptions(tokens);
-        AssetType type = AssetType.fromString(requireOption(options, "--type"));
+        AssetType type = parseAssetType(requireOption(options, "--type"));
         String ticker = normaliseTicker(requireOption(options, "--ticker"));
-        return new ParsedCommand(CommandType.REMOVE, null, type, ticker, null, null, null, null);
+        Double qty = parseOptionalPositiveDouble(options.get("--qty"), "Quantity must be > 0");
+        Double price = parseOptionalPositiveDouble(options.get("--price"), "Price must be > 0");
+        return new ParsedCommand(CommandType.REMOVE, null, type, ticker, qty, price, null, null);
     }
 
     private ParsedCommand parseSet(List<String> tokens) throws AppException {
@@ -129,6 +137,21 @@ public class Parser {
             return value;
         } catch (NumberFormatException e) {
             throw new AppException(errorMessage);
+        }
+    }
+
+    private Double parseOptionalPositiveDouble(String rawValue, String errorMessage) throws AppException {
+        if (rawValue == null) {
+            return null;
+        }
+        return parsePositiveDouble(rawValue, errorMessage);
+    }
+
+    private AssetType parseAssetType(String rawValue) throws AppException {
+        try {
+            return AssetType.fromString(rawValue);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(e.getMessage());
         }
     }
 

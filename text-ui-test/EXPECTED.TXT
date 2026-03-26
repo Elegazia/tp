@@ -11,4 +11,244 @@ Welcome to Stocks Tracker!
 
 
 Type /help to see available commands.
+
+----------------------------------------
+Available commands:
+/create NAME
+/use NAME
+/list
+/list --stock
+/list --etf
+/list --bond
+/list --portfolios
+/add --type TYPE --ticker TICKER --qty QTY --price PRICE
+/remove --type TYPE --ticker TICKER --qty QTY --price PRICE
+/set --ticker TICKER --price PRICE
+/setmany --file FILEPATH
+/value
+/help
+/exit
+
+----------------------------------------
+
+
+----------------------------------------
+Created portfolio: RishPortfolio
+Active portfolio: RishPortfolio
+----------------------------------------
+
+
+----------------------------------------
+Portfolios (alphabetical):
+RishPortfolio realized=+0.00 unrealised=+0.00
+----------------------------------------
+
+
+----------------------------------------
+Active portfolio: RishPortfolio
+----------------------------------------
+
+
+----------------------------------------
+Added holding:
+Type: stock
+Ticker: VOO
+Quantity: 1
+Average buy price: 300.00
+----------------------------------------
+
+
+----------------------------------------
+Updated holding quantity: VOO (stock) = 1.5, avg buy price = 320.00
+----------------------------------------
+
+
+----------------------------------------
+Added holding:
+Type: etf
+Ticker: QQQ
+Quantity: 2
+Average buy price: 400.00
+----------------------------------------
+
+
+----------------------------------------
+Added holding:
+Type: bond
+Ticker: BND
+Quantity: 3
+Average buy price: 80.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+1 STOCK VOO 1.5 300.00 450.00
+Total holdings: 1
+Total value: 450.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+1 ETF QQQ 2 400.00 800.00
+Total holdings: 1
+Total value: 800.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+1 BOND BND 3 80.00 240.00
+Total holdings: 1
+Total value: 240.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+1 STOCK VOO 1.5 300.00 450.00
+2 ETF QQQ 2 400.00 800.00
+3 BOND BND 3 80.00 240.00
+Total holdings: 3
+Total value: 1490.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 1490.00
+Realized P&L: +0.00
+Unrealised P&L by holding:
+VOO: Quantity 1.5, Avg. Price = 320.00, Last Price = 300.00, Unrealised P&L = -30.00
+QQQ: Quantity 2, Avg. Price = 400.00, Last Price = 400.00, Unrealised P&L = +0.00
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 80.00, Unrealised P&L = +0.00
+Total unrealised P&L: -30.00
+----------------------------------------
+
+
+----------------------------------------
+Updated price: VOO = 600.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 1940.00
+Realized P&L: +0.00
+Unrealised P&L by holding:
+VOO: Quantity 1.5, Avg. Price = 320.00, Last Price = 600.00, Unrealised P&L = +420.00
+QQQ: Quantity 2, Avg. Price = 400.00, Last Price = 400.00, Unrealised P&L = +0.00
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 80.00, Unrealised P&L = +0.00
+Total unrealised P&L: +420.00
+----------------------------------------
+
+
+----------------------------------------
+Sold 0.5 of VOO (stock) at 620.00, realized P&L = +150.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 1640.00
+Realized P&L: +150.00
+Unrealised P&L by holding:
+VOO: Quantity 1, Avg. Price = 320.00, Last Price = 600.00, Unrealised P&L = +280.00
+QQQ: Quantity 2, Avg. Price = 400.00, Last Price = 400.00, Unrealised P&L = +0.00
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 80.00, Unrealised P&L = +0.00
+Total unrealised P&L: +280.00
+----------------------------------------
+
+
+----------------------------------------
+Sold 0.5 of VOO (stock) at 600.00, realized P&L = +140.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 1340.00
+Realized P&L: +290.00
+Unrealised P&L by holding:
+VOO: Quantity 0.5, Avg. Price = 320.00, Last Price = 600.00, Unrealised P&L = +140.00
+QQQ: Quantity 2, Avg. Price = 400.00, Last Price = 400.00, Unrealised P&L = +0.00
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 80.00, Unrealised P&L = +0.00
+Total unrealised P&L: +140.00
+----------------------------------------
+
+
+----------------------------------------
+Sold 0.5 of VOO (stock) at 600.00, realized P&L = +140.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 1040.00
+Realized P&L: +430.00
+Unrealised P&L by holding:
+QQQ: Quantity 2, Avg. Price = 400.00, Last Price = 400.00, Unrealised P&L = +0.00
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 80.00, Unrealised P&L = +0.00
+Total unrealised P&L: +0.00
+----------------------------------------
+
+
+----------------------------------------
+Sold 2 of QQQ (etf) at 405.00, realized P&L = +10.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 240.00
+Realized P&L: +440.00
+Unrealised P&L by holding:
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 80.00, Unrealised P&L = +0.00
+Total unrealised P&L: +0.00
+----------------------------------------
+
+
+----------------------------------------
+Updated prices: 1 succeeded, 1 failed
+Failed rows:
+line 3 - ticker: MISSING reason: holding not found
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+Current total value: 246.00
+Realized P&L: +440.00
+Unrealised P&L by holding:
+BND: Quantity 3, Avg. Price = 80.00, Last Price = 82.00, Unrealised P&L = +6.00
+Total unrealised P&L: +6.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+1 BOND BND 3 82.00 246.00
+Total holdings: 1
+Total value: 246.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolios (alphabetical):
+RishPortfolio realized=+440.00 unrealised=+6.00
+----------------------------------------
+
+
+----------------------------------------
+Portfolio: RishPortfolio
+1 BOND BND 3 82.00 246.00
+Total holdings: 1
+Total value: 246.00
+----------------------------------------
+
+
+----------------------------------------
 Thank you and goodbye.
+----------------------------------------
+

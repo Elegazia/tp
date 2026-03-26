@@ -7,6 +7,7 @@ public class Ui {
     private static final Scanner INPUT = new Scanner(System.in);
     private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("0.00");
     private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.############");
+    private static final String DIVIDER = "----------------------------------------";
 
     public String readCommand() {
         if (!INPUT.hasNextLine()) {
@@ -32,6 +33,16 @@ public class Ui {
         System.out.println("Type /help to see available commands.");
     }
 
+    public void beginResponse() {
+        System.out.println();
+        System.out.println(DIVIDER);
+    }
+
+    public void endResponse() {
+        System.out.println(DIVIDER);
+        System.out.println();
+    }
+
     public void showGoodbye() {
         System.out.println("Thank you and goodbye.");
     }
@@ -50,10 +61,12 @@ public class Ui {
                    /create NAME
                    /use NAME
                    /list
-                   /list portfolios
-                   /list holdings
-                   /add --type TYPE --ticker TICKER --qty QTY
-                   /remove --type TYPE --ticker TICKER
+                   /list --stock
+                   /list --etf
+                   /list --bond
+                   /list --portfolios
+                   /add --type TYPE --ticker TICKER --qty QTY --price PRICE
+                   /remove --type TYPE --ticker TICKER --qty QTY --price PRICE
                    /set --ticker TICKER --price PRICE
                    /setmany --file FILEPATH
                    /value
@@ -74,21 +87,46 @@ public class Ui {
         }
     }
 
+    public void showPortfolioSummaries(PortfolioBook portfolioBook) {
+        assert portfolioBook != null : "portfolioBook must not be null";
+        List<Portfolio> portfolios = portfolioBook.getPortfolios()
+                .stream()
+                .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                .toList();
+
+        System.out.println("Portfolios (alphabetical):");
+        for (Portfolio portfolio : portfolios) {
+            System.out.println(portfolio.getName()
+                    + " realized=" + formatSignedMoney(portfolio.getTotalRealizedPnl())
+                    + " unrealised=" + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
+        }
+    }
+
     public void showAddedHolding(Holding holding) {
         assert holding != null : "holding must not be null";
         System.out.println("Added holding:");
         System.out.println("Type: " + holding.getAssetType().toDisplay());
         System.out.println("Ticker: " + holding.getTicker());
         System.out.println("Quantity: " + formatNumber(holding.getQuantity()));
+        System.out.println("Average buy price: " + formatMoney(holding.getAverageBuyPrice()));
     }
 
     public void showHoldings(Portfolio portfolio) {
+        showHoldings(portfolio, null);
+    }
+
+    public void showHoldings(Portfolio portfolio, AssetType filterType) {
         assert portfolio != null : "portfolio must not be null";
         System.out.println("Portfolio: " + portfolio.getName());
 
         List<Holding> holdings = portfolio.getHoldings();
         int index = 1;
+        double filteredValueTotal = 0.0;
         for (Holding holding : holdings) {
+            if (filterType != null && holding.getAssetType() != filterType) {
+                continue;
+            }
+
             String priceText = holding.hasPrice() ? formatMoney(holding.getLastPrice()) : "-";
             String valueText = holding.hasPrice() ? formatMoney(holding.getValue()) : "-";
 
@@ -102,18 +140,35 @@ public class Ui {
                     + priceText
                     + " "
                     + valueText);
+
+            if (holding.hasPrice()) {
+                filteredValueTotal += holding.getValue();
+            }
             index++;
         }
 
-        System.out.println("Total holdings: " + holdings.size());
-        System.out.println("Total value: " + formatMoney(portfolio.getPricedTotalValue()));
+        System.out.println("Total holdings: " + (index - 1));
+        double totalValue = (filterType == null) ? portfolio.getPricedTotalValue() : filteredValueTotal;
+        System.out.println("Total value: " + formatMoney(totalValue));
     }
 
     public void showPortfolioValue(Portfolio portfolio) {
         assert portfolio != null : "portfolio must not be null";
         System.out.println("Portfolio: " + portfolio.getName());
-        System.out.println("Total value (priced holdings): " + formatMoney(portfolio.getPricedTotalValue()));
-        System.out.println("Unpriced holdings: " + portfolio.countUnpricedHoldings());
+        System.out.println("Current total value: " + formatMoney(portfolio.getCurrentTotalValue()));
+        System.out.println("Realized P&L: " + formatSignedMoney(portfolio.getTotalRealizedPnl()));
+        System.out.println("Unrealised P&L by holding:");
+
+        List<Holding> holdings = portfolio.getHoldings();
+        for (Holding holding : holdings) {
+            System.out.println(holding.getTicker()
+                    + ": Quantity " + formatNumber(holding.getQuantity())
+                    + ", Avg. Price = " + formatMoney(holding.getAverageBuyPrice())
+                    + ", Last Price = " + formatMoney(holding.getLastPrice())
+                    + ", Unrealised P&L = " + formatSignedMoney(holding.getUnrealizedPnl()));
+        }
+
+        System.out.println("Total unrealised P&L: " + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
     }
 
     public void showBulkUpdateResult(Storage.BulkUpdateResult result) {
@@ -135,5 +190,10 @@ public class Ui {
 
     public static String formatNumber(double value) {
         return NUMBER_FORMAT.format(value);
+    }
+
+    public static String formatSignedMoney(double value) {
+        String abs = formatMoney(Math.abs(value));
+        return (value >= 0 ? "+" : "-") + abs;
     }
 }

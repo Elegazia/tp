@@ -1,1 +1,29 @@
+/help
+/create RishPortfolio
+/list --portfolios
+/use RishPortfolio
+/add --type STOCK --ticker VOO --qty 1 --price 300
+/add --type STOCK --ticker VOO --qty 0.5 --price 360
+/add --type ETF --ticker QQQ --qty 2 --price 400
+/add --type BOND --ticker BND --qty 3 --price 80
+/list --stock
+/list --etf
+/list --bond
+/list
+/value
+/set --ticker VOO --price 600
+/value
+/remove --type STOCK --ticker VOO --qty 0.5 --price 620
+/value
+/remove --type STOCK --ticker VOO --qty 0.5
+/value
+/remove --type STOCK --ticker VOO
+/value
+/remove --type ETF --ticker QQQ --price 405
+/value
+/setmany --file text-ui-test/prices.csv
+/value
+/list --bond
+/list --portfolios
+/list
 /exit
