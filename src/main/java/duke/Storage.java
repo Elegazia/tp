@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Storage {
-    private final Path filePath;
     private static final String CORRUPTED_FILE_MESSAGE = "Corrupted storage file.";
+    private final Path filePath;
 
     public Storage(String filePath) {
         if (filePath == null || filePath.isBlank()) {

@@ -64,7 +64,8 @@ public class Portfolio {
             effectivePrice = holdingPrice;
         } else {
             throw new IllegalArgumentException("Price required for remove when holding has no last set price: "
-                    + ticker);        }
+                    + ticker);
+        }
 
         double realizedDelta = holding.removeQuantity(quantityToRemove, effectivePrice);
         totalRealizedPnl += realizedDelta;
