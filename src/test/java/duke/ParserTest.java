@@ -23,15 +23,29 @@ public class ParserTest {
         assertEquals("VOO", command.ticker());
         assertEquals(1.0, command.quantity());
         assertEquals(300.0, command.price());
+        assertEquals(0.0, command.totalFees());
+    }
+
+    @Test
+    void parseAdd_withFees_parsesFeeFields() throws AppException {
+        ParsedCommand command = parser.parse(
+                "/add --type STOCK --ticker voo --qty 1 --price 300 --brokerage 1.5 --fx 2 --platform 0.5");
+
+        assertEquals(1.5, command.brokerageFee());
+        assertEquals(2.0, command.fxFee());
+        assertEquals(0.5, command.platformFee());
+        assertEquals(4.0, command.totalFees());
     }
 
     @Test
     void parseRemove_withQtyAndPrice_parsesOptionalFields() throws AppException {
-        ParsedCommand command = parser.parse("/remove --type STOCK --ticker VOO --qty 0.5 --price 600");
+        ParsedCommand command = parser.parse(
+                "/remove --type STOCK --ticker VOO --qty 0.5 --price 600 --brokerage 1 --fx 2 --platform 3");
 
         assertEquals(CommandType.REMOVE, command.type());
         assertEquals(0.5, command.quantity());
         assertEquals(600.0, command.price());
+        assertEquals(6.0, command.totalFees());
     }
 
     @Test

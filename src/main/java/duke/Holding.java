@@ -45,26 +45,32 @@ public class Holding {
         return averageBuyPrice;
     }
 
-    public void addQuantity(double quantityToAdd, double purchasePrice) {
+    public void addQuantity(double quantityToAdd, double purchasePrice, double totalFees) {
         if (quantityToAdd <= 0 || purchasePrice <= 0) {
             throw new IllegalArgumentException("quantityToAdd and purchasePrice must be > 0");
         }
+        if (totalFees < 0) {
+            throw new IllegalArgumentException("totalFees must be >= 0");
+        }
 
         double totalCostBefore = averageBuyPrice * quantity;
-        double addedCost = purchasePrice * quantityToAdd;
+        double addedCost = (purchasePrice * quantityToAdd) + totalFees;
         quantity += quantityToAdd;
         averageBuyPrice = (totalCostBefore + addedCost) / quantity;
     }
 
-    public double removeQuantity(double quantityToRemove, double sellPrice) {
+    public double removeQuantity(double quantityToRemove, double sellPrice, double totalFees) {
         if (quantityToRemove <= 0 || quantityToRemove > quantity) {
             throw new IllegalArgumentException("Invalid quantity to remove");
         }
         if (sellPrice <= 0) {
             throw new IllegalArgumentException("sellPrice must be > 0");
         }
+        if (totalFees < 0) {
+            throw new IllegalArgumentException("totalFees must be >= 0");
+        }
 
-        double realizedPnl = (sellPrice - averageBuyPrice) * quantityToRemove;
+        double realizedPnl = (sellPrice * quantityToRemove) - totalFees - (averageBuyPrice * quantityToRemove);
         quantity -= quantityToRemove;
 
         if (quantity == 0) {

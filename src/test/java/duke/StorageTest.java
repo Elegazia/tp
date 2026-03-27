@@ -34,7 +34,7 @@ public class StorageTest {
         book.usePortfolio("tech");
 
         Portfolio portfolio = book.getActivePortfolio();
-        portfolio.addHolding(AssetType.STOCK, "AAPL", 10, 150);
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 10, 150, 25);
 
         storage.save(book);
 
@@ -45,6 +45,7 @@ public class StorageTest {
 
         assertNotNull(loadedPortfolio);
         assertTrue(loadedPortfolio.hasHolding(AssetType.STOCK, "AAPL"));
+        assertEquals(152.5, loadedPortfolio.getHolding(AssetType.STOCK, "AAPL").getAverageBuyPrice());
     }
 
     @Test
@@ -53,7 +54,7 @@ public class StorageTest {
         Storage storage = new Storage(storageFile.toString());
 
         Portfolio portfolio = new Portfolio("test");
-        portfolio.addHolding(AssetType.STOCK, "AAPL", 5, 180);
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 5, 180, 0);
 
         Path csv = tempDir.resolve("prices.csv");
 
@@ -77,7 +78,7 @@ public class StorageTest {
         Storage storage = new Storage(storageFile.toString());
 
         Portfolio portfolio = new Portfolio("test");
-        portfolio.addHolding(AssetType.STOCK, "AAPL", 5, 180);
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 5, 180, 0);
 
         Path csv = tempDir.resolve("prices.csv");
 

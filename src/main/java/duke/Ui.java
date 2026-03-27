@@ -44,7 +44,7 @@ public class Ui {
     }
 
     public void showGoodbye() {
-        System.out.println("Thank you and goodbye.");
+        showMessage("Thank you and goodbye.");
     }
 
     public void showMessage(String message) {
@@ -66,7 +66,9 @@ public class Ui {
                    /list --bond
                    /list --portfolios
                    /add --type TYPE --ticker TICKER --qty QTY --price PRICE
-                   /remove --type TYPE --ticker TICKER --qty QTY --price PRICE
+                     Optional fees: --brokerage FEE --fx FEE --platform FEE
+                   /remove --type TYPE --ticker TICKER
+                     Optional fields: --qty QTY --price PRICE --brokerage FEE --fx FEE --platform FEE
                    /set --ticker TICKER --price PRICE
                    /setmany --file FILEPATH
                    /value

@@ -60,8 +60,8 @@ public class UiTest {
     void showHoldings_printsPriceAndTotals() {
         Ui ui = new Ui();
         Portfolio portfolio = new Portfolio("main");
-        portfolio.addHolding(AssetType.STOCK, "AAPL", 2, 90);
-        portfolio.addHolding(AssetType.ETF, "QQQ", 3, 350);
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 2, 90, 0);
+        portfolio.addHolding(AssetType.ETF, "QQQ", 3, 350, 0);
         portfolio.setPriceForTicker("AAPL", 100);
 
         ui.showHoldings(portfolio);
@@ -78,8 +78,8 @@ public class UiTest {
     void showHoldings_withFilter_printsOnlyMatchingType() {
         Ui ui = new Ui();
         Portfolio portfolio = new Portfolio("main");
-        portfolio.addHolding(AssetType.STOCK, "AAPL", 2, 90);
-        portfolio.addHolding(AssetType.ETF, "QQQ", 3, 350);
+        portfolio.addHolding(AssetType.STOCK, "AAPL", 2, 90, 0);
+        portfolio.addHolding(AssetType.ETF, "QQQ", 3, 350, 0);
 
         ui.showHoldings(portfolio, AssetType.STOCK);
 
@@ -98,11 +98,11 @@ public class UiTest {
         book.createPortfolio("alpha");
 
         Portfolio alpha = book.getPortfolio("alpha");
-        alpha.addHolding(AssetType.STOCK, "VOO", 1, 300);
+        alpha.addHolding(AssetType.STOCK, "VOO", 1, 300, 0);
         alpha.setPriceForTicker("VOO", 350);
 
         Portfolio zeta = book.getPortfolio("zeta");
-        zeta.addHolding(AssetType.BOND, "BND", 2, 70);
+        zeta.addHolding(AssetType.BOND, "BND", 2, 70, 0);
 
         ui.showPortfolioSummaries(book);
 
@@ -135,8 +135,8 @@ public class UiTest {
     void showPortfolioValue_printsPricedAndUnpricedCounts() {
         Ui ui = new Ui();
         Portfolio portfolio = new Portfolio("retirement");
-        portfolio.addHolding(AssetType.BOND, "BND", 10, 70);
-        portfolio.addHolding(AssetType.STOCK, "MSFT", 1, 250);
+        portfolio.addHolding(AssetType.BOND, "BND", 10, 70, 0);
+        portfolio.addHolding(AssetType.STOCK, "MSFT", 1, 250, 0);
         portfolio.setPriceForTicker("MSFT", 300);
 
         ui.showPortfolioValue(portfolio);

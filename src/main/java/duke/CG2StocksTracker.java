@@ -138,9 +138,10 @@ public class CG2StocksTracker {
         String ticker = command.ticker();
         double qty = command.quantity();
         double price = command.price();
+        double fees = command.totalFees();
 
         boolean existed = portfolio.hasHolding(type, ticker);
-        double newQty = portfolio.addHolding(type, ticker, qty, price);
+        double newQty = portfolio.addHolding(type, ticker, qty, price, fees);
         save();
 
         Holding holding = portfolio.getHolding(type, ticker);
@@ -159,17 +160,19 @@ public class CG2StocksTracker {
         String ticker = command.ticker();
         Double qty = command.quantity();
         Double price = command.price();
+        double fees = command.totalFees();
 
         Portfolio.RemoveResult result;
         try {
-            result = portfolio.removeHolding(type, ticker, qty, price);
+            result = portfolio.removeHolding(type, ticker, qty, price, fees);
         } catch (IllegalArgumentException e) {
             throw new AppException(e.getMessage());
         }
         save();
+        String feeText = result.fees() > 0 ? ", fees = " + Ui.formatMoney(result.fees()) : "";
         ui.showMessage("Sold " + Ui.formatNumber(result.soldQuantity())
             + " of " + ticker + " (" + type.toDisplay() + ") at " + Ui.formatMoney(result.soldPrice())
-            + ", realized P&L = " + Ui.formatSignedMoney(result.realizedPnl()));
+            + feeText + ", realized P&L = " + Ui.formatSignedMoney(result.realizedPnl()));
     }
 
     private void handleSet(ParsedCommand command) throws AppException {

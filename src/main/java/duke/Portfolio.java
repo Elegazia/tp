@@ -24,16 +24,17 @@ public class Portfolio {
         return holdings.containsKey(makeKey(assetType, ticker));
     }
 
-    public double addHolding(AssetType assetType, String ticker, double quantity, double purchasePrice) {
+    public double addHolding(AssetType assetType, String ticker, double quantity, double purchasePrice, double fees) {
         String key = makeKey(assetType, ticker);
 
         if (holdings.containsKey(key)) {
             Holding existing = holdings.get(key);
-            existing.addQuantity(quantity, purchasePrice);
+            existing.addQuantity(quantity, purchasePrice, fees);
             return existing.getQuantity();
         }
 
-        Holding holding = new Holding(assetType, ticker, quantity, purchasePrice);
+        double effectivePurchasePrice = ((purchasePrice * quantity) + fees) / quantity;
+        Holding holding = new Holding(assetType, ticker, quantity, effectivePurchasePrice);
         holdings.put(key, holding);
         return holding.getQuantity();
     }
@@ -42,7 +43,7 @@ public class Portfolio {
         return holdings.get(makeKey(assetType, ticker));
     }
 
-    public RemoveResult removeHolding(AssetType assetType, String ticker, Double quantity, Double price)
+    public RemoveResult removeHolding(AssetType assetType, String ticker, Double quantity, Double price, double fees)
             throws IllegalArgumentException {
         String key = makeKey(assetType, ticker);
         if (!holdings.containsKey(key)) {
@@ -67,14 +68,14 @@ public class Portfolio {
                     + ticker);
         }
 
-        double realizedDelta = holding.removeQuantity(quantityToRemove, effectivePrice);
+        double realizedDelta = holding.removeQuantity(quantityToRemove, effectivePrice, fees);
         totalRealizedPnl += realizedDelta;
 
         if (holding.getQuantity() == 0) {
             holdings.remove(key);
         }
 
-        return new RemoveResult(quantityToRemove, effectivePrice, realizedDelta);
+        return new RemoveResult(quantityToRemove, effectivePrice, fees, realizedDelta);
     }
 
     public int setPriceForTicker(String ticker, double price) {
@@ -148,6 +149,6 @@ public class Portfolio {
         return assetType.name() + "|" + ticker;
     }
 
-    public record RemoveResult(double soldQuantity, double soldPrice, double realizedPnl) {
+    public record RemoveResult(double soldQuantity, double soldPrice, double fees, double realizedPnl) {
     }
 }
