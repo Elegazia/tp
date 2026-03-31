@@ -53,10 +53,15 @@ Format:
 Notes:
 - `TYPE` must be one of `STOCK`, `ETF`, `BOND`.
 - `QTY > 0`, `PRICE > 0`.
+- Optional fee fields: `--brokerage FEE`, `--fx FEE`, `--platform FEE`.
+- Fee values (when provided) must be `>= 0`.
 - If holding already exists, quantity is increased and average buy price is recalculated using weighted average.
 
 Example:
 `/add --type STOCK --ticker VOO --qty 1 --price 300`
+
+Example with fees:
+`/add --type STOCK --ticker VOO --qty 1 --price 300 --brokerage 1.50 --fx 2.00 --platform 0.50`
 
 Output contains:
 - Added/updated holding details.
@@ -73,10 +78,12 @@ Optional behavior:
 - If `--qty` is omitted: sell all units of the holding.
 - If `--price` is omitted: use the last price set via `/set` for that ticker.
 - If both are omitted: sell all units using last `/set` price.
+- Optional fee fields: `--brokerage FEE`, `--fx FEE`, `--platform FEE`.
 
 Notes:
 - If no `--price` is provided and there is no last `/set` price, command fails.
 - `QTY` (when provided) must be `> 0` and not exceed current holding quantity.
+- Fee values (when provided) must be `>= 0`.
 - If `/set` was never used for a holding, remove falls back to the initial add price for that holding.
 
 Examples:
@@ -88,10 +95,13 @@ Examples:
 	`/remove --type STOCK --ticker VOO --price 590`
 - Sell all at last `/set` price:
 	`/remove --type STOCK --ticker VOO`
+- Sell with fees:
+	`/remove --type STOCK --ticker VOO --qty 0.5 --price 620 --brokerage 1.50 --platform 0.50`
 
 Output contains:
 - Sold quantity.
 - Effective sell price used.
+- Total fees used for that sale (when non-zero).
 - Realized P&L for that sale (signed + / -).
 
 ### Set market price: `/set`
@@ -159,6 +169,8 @@ Exits the application.
 **A**: Weighted average cost basis is used:
 `newAvg = (oldQty * oldAvg + addedQty * addedPrice) / (oldQty + addedQty)`
 
+If fees are provided for `/add`, they are included in the purchase cost before calculating the new average buy price.
+
 ## Command Summary
 
 - `/create NAME`
@@ -168,8 +180,8 @@ Exits the application.
 - `/list --etf`
 - `/list --bond`
 - `/list --portfolios`
-- `/add --type TYPE --ticker TICKER --qty QTY --price PRICE`
-- `/remove --type TYPE --ticker TICKER --qty QTY --price PRICE`
+- `/add --type TYPE --ticker TICKER --qty QTY --price PRICE [--brokerage FEE] [--fx FEE] [--platform FEE]`
+- `/remove --type TYPE --ticker TICKER [--qty QTY] [--price PRICE] [--brokerage FEE] [--fx FEE] [--platform FEE]`
 - `/set --ticker TICKER --price PRICE`
 - `/setmany --file FILEPATH`
 - `/value`
