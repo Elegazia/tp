@@ -2,6 +2,10 @@ package duke;
 
 import java.nio.file.Path;
 
+/**
+ * Main application controller for the Stocks Tracker command-line program.
+ * Coordinates command parsing, execution, persistence, and UI output.
+ */
 public class CG2StocksTracker {
     private static final String FILE_PATH = "data/CG2StocksTracker.txt";
 
@@ -10,6 +14,11 @@ public class CG2StocksTracker {
     private final Storage storage;
     private final PortfolioBook portfolioBook;
 
+    /**
+     * Creates the application and loads persisted portfolio data from storage.
+     *
+     * @param filePath path to the storage file.
+     */
     public CG2StocksTracker(String filePath) {
         this.ui = new Ui();
         this.parser = new Parser();
@@ -25,10 +34,18 @@ public class CG2StocksTracker {
         this.portfolioBook = loadedBook;
     }
 
+    /**
+     * Starts the application using the default storage file path.
+     *
+     * @param args command-line arguments (unused).
+     */
     public static void main(String[] args) {
         new CG2StocksTracker(FILE_PATH).run();
     }
 
+    /**
+     * Runs the main application loop until the user exits.
+     */
     public void run() {
         ui.showWelcome();
 
@@ -51,6 +68,13 @@ public class CG2StocksTracker {
         }
     }
 
+    /**
+     * Executes a parsed command and returns whether the main loop should continue.
+     *
+     * @param command parsed user command.
+     * @return true to continue running; false to exit the application.
+     * @throws AppException if command execution fails.
+     */
     private boolean execute(ParsedCommand command) throws AppException {
         switch (command.type()) {
         case CREATE:
@@ -91,6 +115,12 @@ public class CG2StocksTracker {
         }
     }
 
+    /**
+     * Creates a new portfolio and persists the updated portfolio book.
+     *
+     * @param command parsed create command.
+     * @throws AppException if portfolio creation or saving fails.
+     */
     private void handleCreate(ParsedCommand command) throws AppException {
         String name = command.name();
         portfolioBook.createPortfolio(name);
@@ -99,12 +129,24 @@ public class CG2StocksTracker {
         ui.showMessage("Active portfolio: " + portfolioBook.getActivePortfolioName());
     }
 
+    /**
+     * Switches the active portfolio.
+     *
+     * @param command parsed use command.
+     * @throws AppException if the target portfolio does not exist.
+     */
     private void handleUse(ParsedCommand command) throws AppException {
         String name = command.name();
         portfolioBook.usePortfolio(name);
         ui.showMessage("Active portfolio: " + name);
     }
 
+    /**
+     * Displays portfolios or holdings based on the list target supplied.
+     *
+     * @param command parsed list command.
+     * @throws AppException if an active portfolio is required but unavailable.
+     */
     private void handleList(ParsedCommand command) throws AppException {
         String target = command.listTarget();
 
@@ -135,6 +177,13 @@ public class CG2StocksTracker {
         }
     }
 
+    /**
+     * Adds a holding to the active portfolio and persists the change.
+     * Fees are included in the holding cost basis via the parsed total fee amount.
+     *
+     * @param command parsed add command.
+     * @throws AppException if there is no active portfolio or saving fails.
+     */
     private void handleAdd(ParsedCommand command) throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         AssetType type = command.assetType();
@@ -157,6 +206,13 @@ public class CG2StocksTracker {
         }
     }
 
+    /**
+     * Removes quantity from a holding in the active portfolio and persists the change.
+     * Fees are deducted from realized profit/loss via the parsed total fee amount.
+     *
+     * @param command parsed remove command.
+     * @throws AppException if the holding cannot be removed or saving fails.
+     */
     private void handleRemove(ParsedCommand command) throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         AssetType type = command.assetType();
@@ -178,6 +234,12 @@ public class CG2StocksTracker {
             + feeText + ", realized P&L = " + Ui.formatSignedMoney(result.realizedPnl()));
     }
 
+    /**
+     * Updates the last price for matching holdings in the active portfolio and saves the result.
+     *
+     * @param command parsed set command.
+     * @throws AppException if the holding is not found or saving fails.
+     */
     private void handleSet(ParsedCommand command) throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         String ticker = command.ticker();
@@ -192,6 +254,12 @@ public class CG2StocksTracker {
         ui.showMessage("Updated price: " + ticker + " = " + Ui.formatMoney(price));
     }
 
+    /**
+     * Loads multiple price updates from a CSV file for the active portfolio and saves the result.
+     *
+     * @param command parsed setmany command.
+     * @throws AppException if loading updates or saving fails.
+     */
     private void handleSetMany(ParsedCommand command) throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         Path filePath = command.filePath();
@@ -202,17 +270,35 @@ public class CG2StocksTracker {
         ui.showBulkUpdateResult(result);
     }
 
+    /**
+     * Displays the current valuation summary for the active portfolio.
+     *
+     * @throws AppException if no active portfolio is selected.
+     */
     private void handleValue() throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         ui.showPortfolioValue(portfolio);
     }
 
+    /**
+     * Displays insights for the active portfolio based on optional filter settings.
+     *
+     * @param command parsed insights command.
+     * @throws AppException if the insights options are invalid or no active portfolio is selected.
+     */
     private void handleInsights(ParsedCommand command) throws AppException {
         InsightsOptions options = parseInsightsOptions(command.listTarget());
         Portfolio portfolio = portfolioBook.getActivePortfolio();
         ui.showInsightsTable(portfolio, options.filterType(), options.topN(), options.showChart());
     }
 
+    /**
+     * Parses optional arguments for the /insights command.
+     *
+     * @param rawOptions raw option string captured from the parser.
+     * @return parsed insights options.
+     * @throws AppException if the options are malformed or unsupported.
+     */
     private InsightsOptions parseInsightsOptions(String rawOptions) throws AppException {
         if (rawOptions == null || rawOptions.isBlank()) {
             return new InsightsOptions(null, null, false);
@@ -265,6 +351,11 @@ public class CG2StocksTracker {
     private record InsightsOptions(AssetType filterType, Integer topN, boolean showChart) {
     }
 
+    /**
+     * Saves the portfolio book to persistent storage.
+     *
+     * @throws AppException if saving fails.
+     */
     private void save() throws AppException {
         storage.save(portfolioBook);
     }
