@@ -6,6 +6,7 @@ public enum CommandType {
     LIST,
     ADD,
     REMOVE,
+    WATCH,
     SET,
     SET_MANY,
     VALUE,

@@ -104,7 +104,11 @@ public class Ui {
                      Optional fees: --brokerage FEE --fx FEE --platform FEE
                    /remove --type TYPE --ticker TICKER
                      Optional fields: --qty QTY --price PRICE --brokerage FEE --fx FEE --platform FEE
-                   /set --ticker TICKER --price PRICE
+                   /watch add --type TYPE --ticker TICKER [--price PRICE]
+                   /watch remove --type TYPE --ticker TICKER
+                   /watch list
+                   /watch buy --type TYPE --ticker TICKER --portfolio NAME
+                   /set --type TYPE --ticker TICKER --price PRICE
                    /setmany --file FILEPATH
                    /value
                    /insights [--type stock|etf|bond] [--top N] [--chart]
@@ -149,6 +153,34 @@ public class Ui {
                     + " realized=" + formatSignedMoney(portfolio.getTotalRealizedPnl())
                     + " unrealised=" + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
         }
+    }
+
+    /**
+     * Prints all watchlist items with optional target prices.
+     *
+     * @param watchlist source of watchlist data.
+     */
+    public void showWatchlist(Watchlist watchlist) {
+        assert watchlist != null : "watchlist must not be null";
+        List<WatchlistItem> items = watchlist.getItems();
+
+        if (items.isEmpty()) {
+            System.out.println("Watchlist is empty.");
+            return;
+        }
+
+        System.out.println("Watchlist:");
+        for (int i = 0; i < items.size(); i++) {
+            WatchlistItem item = items.get(i);
+            String priceText = item.hasPrice() ? formatMoney(item.targetPrice()) : "-";
+            System.out.println((i + 1) + " "
+                    + item.assetType().name()
+                    + " "
+                    + item.ticker()
+                    + " "
+                    + priceText);
+        }
+        System.out.println("Total watchlist items: " + items.size());
     }
 
     /**

@@ -30,6 +30,7 @@ public class Parser {
         case "list" -> parseList(tokens);
         case "add" -> parseAdd(tokens);
         case "remove" -> parseRemove(tokens);
+        case "watch" -> parseWatch(tokens);
         case "set" -> parseSet(tokens);
         case "setmany" -> parseSetMany(tokens);
         case "value" -> parseNoArgCommand(tokens, CommandType.VALUE);
@@ -114,11 +115,65 @@ public class Parser {
 
     private ParsedCommand parseSet(List<String> tokens) throws AppException {
         Map<String, String> options = parseOptions(tokens);
-        validateAllowedOptions(options, "--ticker", "--price");
+        validateAllowedOptions(options, "--type", "--ticker", "--price");
+        AssetType type = parseAssetType(requireOption(options, "--type"));
         String ticker = normaliseTicker(requireOption(options, "--ticker"));
         double price = parsePositiveDouble(requireOption(options, "--price"), "Price must be > 0");
-        return new ParsedCommand(CommandType.SET, null, null, ticker, null, price,
+        return new ParsedCommand(CommandType.SET, null, type, ticker, null, price,
                 null, null, null, null, null);
+    }
+
+    private ParsedCommand parseWatch(List<String> tokens) throws AppException {
+        if (tokens.size() < 2) {
+            throw new AppException("Usage: /watch add|remove|list|buy ...");
+        }
+
+        String action = tokens.get(1).toLowerCase();
+        return switch (action) {
+        case "list" -> parseWatchList(tokens);
+        case "add" -> parseWatchAdd(tokens);
+        case "remove" -> parseWatchRemove(tokens);
+        case "buy" -> parseWatchBuy(tokens);
+        default -> throw new AppException("Unknown watch action: " + action
+                + "\nUsage: /watch add|remove|list|buy ...");
+        };
+    }
+
+    private ParsedCommand parseWatchList(List<String> tokens) throws AppException {
+        if (tokens.size() != 2) {
+            throw new AppException("Usage: /watch list");
+        }
+        return new ParsedCommand(CommandType.WATCH, "list", null, null, null, null,
+                null, null, null, null, null);
+    }
+
+    private ParsedCommand parseWatchAdd(List<String> tokens) throws AppException {
+        Map<String, String> options = parseOptions(tokens, 2);
+        validateAllowedOptions(options, "--type", "--ticker", "--price");
+        AssetType type = parseAssetType(requireOption(options, "--type"));
+        String ticker = normaliseTicker(requireOption(options, "--ticker"));
+        Double price = parseOptionalPositiveDouble(options.get("--price"), "Price must be > 0");
+        return new ParsedCommand(CommandType.WATCH, "add", type, ticker, null, price,
+                null, null, null, null, null);
+    }
+
+    private ParsedCommand parseWatchRemove(List<String> tokens) throws AppException {
+        Map<String, String> options = parseOptions(tokens, 2);
+        validateAllowedOptions(options, "--type", "--ticker");
+        AssetType type = parseAssetType(requireOption(options, "--type"));
+        String ticker = normaliseTicker(requireOption(options, "--ticker"));
+        return new ParsedCommand(CommandType.WATCH, "remove", type, ticker, null, null,
+                null, null, null, null, null);
+    }
+
+    private ParsedCommand parseWatchBuy(List<String> tokens) throws AppException {
+        Map<String, String> options = parseOptions(tokens, 2);
+        validateAllowedOptions(options, "--type", "--ticker", "--portfolio");
+        AssetType type = parseAssetType(requireOption(options, "--type"));
+        String ticker = normaliseTicker(requireOption(options, "--ticker"));
+        String portfolioName = requireOption(options, "--portfolio");
+        return new ParsedCommand(CommandType.WATCH, "buy", type, ticker, null, null,
+                null, null, null, portfolioName, null);
     }
 
     private ParsedCommand parseSetMany(List<String> tokens) throws AppException {
@@ -145,9 +200,13 @@ public class Parser {
     }
 
     private Map<String, String> parseOptions(List<String> tokens) throws AppException {
+        return parseOptions(tokens, 1);
+    }
+
+    private Map<String, String> parseOptions(List<String> tokens, int startIndex) throws AppException {
         Map<String, String> options = new HashMap<>();
 
-        for (int i = 1; i < tokens.size(); i += 2) {
+        for (int i = startIndex; i < tokens.size(); i += 2) {
             if (i + 1 >= tokens.size()) {
                 throw new AppException("Missing value for option: " + tokens.get(i));
             }

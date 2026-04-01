@@ -13,6 +13,7 @@ public class CG2StocksTracker {
     private final Parser parser;
     private final Storage storage;
     private final PortfolioBook portfolioBook;
+    private final Watchlist watchlist;
 
     /**
      * Creates the application and loads persisted portfolio data from storage.
@@ -32,6 +33,15 @@ public class CG2StocksTracker {
             loadedBook = new PortfolioBook();
         }
         this.portfolioBook = loadedBook;
+
+        Watchlist loadedWatchlist;
+        try {
+            loadedWatchlist = storage.loadWatchlist();
+        } catch (AppException e) {
+            ui.showMessage("Watchlist load failed: " + e.getMessage());
+            loadedWatchlist = new Watchlist();
+        }
+        this.watchlist = loadedWatchlist;
     }
 
     /**
@@ -91,6 +101,9 @@ public class CG2StocksTracker {
             return true;
         case REMOVE:
             handleRemove(command);
+            return true;
+        case WATCH:
+            handleWatch(command);
             return true;
         case SET:
             handleSet(command);
@@ -235,23 +248,103 @@ public class CG2StocksTracker {
     }
 
     /**
-     * Updates the last price for matching holdings in the active portfolio and saves the result.
+     * Updates the last price for one holding (asset type + ticker) in the active portfolio and saves the result.
      *
      * @param command parsed set command.
      * @throws AppException if the holding is not found or saving fails.
      */
     private void handleSet(ParsedCommand command) throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
+        AssetType type = command.assetType();
         String ticker = command.ticker();
         double price = command.price();
 
-        int updatedCount = portfolio.setPriceForTicker(ticker, price);
-        if (updatedCount == 0) {
-            throw new AppException("Holding not found for ticker: " + ticker);
+        boolean updated = portfolio.setPriceForHolding(type, ticker, price);
+        if (!updated) {
+            throw new AppException("Holding not found: " + ticker + " (" + type.toDisplay() + ")");
         }
 
         save();
-        ui.showMessage("Updated price: " + ticker + " = " + Ui.formatMoney(price));
+        ui.showMessage("Updated price: " + ticker + " (" + type.toDisplay() + ") = " + Ui.formatMoney(price));
+    }
+
+    private void handleWatch(ParsedCommand command) throws AppException {
+        String action = command.name();
+        if (action == null || action.isBlank()) {
+            throw new AppException("Watch action is required.");
+        }
+
+        switch (action) {
+        case "list":
+            ui.showWatchlist(watchlist);
+            break;
+        case "add":
+            handleWatchAdd(command);
+            break;
+        case "remove":
+            handleWatchRemove(command);
+            break;
+        case "buy":
+            handleWatchBuy(command);
+            break;
+        default:
+            throw new AppException("Unknown watch action: " + action);
+        }
+    }
+
+    private void handleWatchAdd(ParsedCommand command) throws AppException {
+        AssetType type = command.assetType();
+        String ticker = command.ticker();
+        Double price = command.price();
+
+        try {
+            watchlist.addItem(type, ticker, price);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(e.getMessage());
+        }
+
+        save();
+        String priceText = price == null ? "-" : Ui.formatMoney(price);
+        ui.showMessage("Added to watchlist: " + ticker + " (" + type.toDisplay() + "), price = " + priceText);
+    }
+
+    private void handleWatchRemove(ParsedCommand command) throws AppException {
+        AssetType type = command.assetType();
+        String ticker = command.ticker();
+
+        boolean removed;
+        try {
+            removed = watchlist.removeItem(type, ticker);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(e.getMessage());
+        }
+
+        if (!removed) {
+            throw new AppException("Watchlist item not found: " + ticker + " (" + type.toDisplay() + ")");
+        }
+
+        save();
+        ui.showMessage("Removed from watchlist: " + ticker + " (" + type.toDisplay() + ")");
+    }
+
+    private void handleWatchBuy(ParsedCommand command) throws AppException {
+        AssetType type = command.assetType();
+        String ticker = command.ticker();
+        String portfolioName = command.listTarget();
+
+        Watchlist.BuyResult result;
+        try {
+            result = watchlist.buyItem(type, ticker, portfolioName, portfolioBook);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(e.getMessage());
+        }
+
+        save();
+        ui.showMessage("Bought " + Ui.formatNumber(result.boughtQuantity())
+                + " of " + result.ticker()
+                + " (" + result.assetType().toDisplay() + ") into portfolio " + result.portfolioName()
+                + " at " + Ui.formatMoney(result.buyPrice())
+                + ". New quantity = " + Ui.formatNumber(result.resultingQuantity()));
     }
 
     /**
@@ -352,11 +445,12 @@ public class CG2StocksTracker {
     }
 
     /**
-     * Saves the portfolio book to persistent storage.
+     * Saves portfolio and watchlist state to persistent storage.
      *
      * @throws AppException if saving fails.
      */
     private void save() throws AppException {
         storage.save(portfolioBook);
+        storage.saveWatchlist(watchlist);
     }
 }
