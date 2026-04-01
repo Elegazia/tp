@@ -242,7 +242,15 @@ Commands that accept named options (e.g. `--type`, `--ticker`, `--qty`) go throu
 key-value pairs and populates a `Map<String, String>`. The helper `requireOption` then asserts that a required key is
 present, throwing a descriptive `AppException` if it is missing.
 
+`parseOptions` also rejects duplicate options (for example `--top 3 --top 5`) and malformed option tokens.
+For command-specific safety, each parse method validates allowed option keys (e.g. `/add` rejects unknown flags).
+
 For `/add` and `/remove`, the parser also reads optional fee fields such as `--brokerage`, `--fx`, and `--platform`.
+
+For `/watch`, parsing is action-based (`add`, `remove`, `list`, `buy`) and each action has its own allowed option set.
+
+For `/insights`, raw options are carried in `ParsedCommand.listTarget()` and interpreted by `CG2StocksTracker`
+(`--type`, `--top`, `--chart`) before invoking `Ui.showInsightsTable(...)`.
 
 Two additional helpers enforce type safety: `parsePositiveDouble` parses a string to a `double` and asserts it is
 strictly positive (used for `--qty`, `--price`, and fee fields), while `normaliseTicker` uppercases the ticker string so
@@ -907,6 +915,90 @@ Cons: Requires a richer storage format.
 **Alternative 2:** Recompute values from market price only during loading.
 Pros: Simpler storage format.
 Cons: Incorrect because market price is not the same as cost basis.
+
+---
+
+## Insights command
+
+### Implementation
+
+The `/insights` command provides holding-level performance diagnostics for the active portfolio.
+
+Execution flow:
+
+1. `Parser.parseInsights(...)` captures trailing options text from the raw command.
+
+2. `CG2StocksTracker.parseInsightsOptions(...)` validates and interprets supported options:
+    - `--type stock|etf|bond`
+    - `--top N` (positive integer)
+    - `--chart`
+
+3. `Ui.showInsightsTable(...)` renders:
+    - a compact table with holding-level metrics (absolute + percentage unrealized P&L)
+    - summary statistics (priced/unpriced counts, cost basis, realized/unrealized/net)
+    - optional ASCII chart when `--chart` is provided
+
+Behavior details:
+
+- Base `/insights` view lists holdings in ticker order.
+- `--type` limits results to one asset class.
+- `--top N` returns top gainers only (positive unrealized P&L), sorted descending by unrealized P&L.
+- `--chart` renders a diverging loss/gain bar around a center `|` marker.
+- Chart scale uses unrealized percentage (`unrealizedPnl / costBasis`) and is normalized to the largest absolute percentage in the current view.
+
+---
+
+### Sequence Diagram
+
+```plantuml
+@startuml
+title Interactions for /insights Command
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant ParsedCommand
+participant PortfolioBook
+participant Portfolio
+
+User -> Ui : enters /insights --type stock --top 3 --chart
+Ui -> CG2StocksTracker : read command
+CG2StocksTracker -> Parser : parse(input)
+Parser --> CG2StocksTracker : ParsedCommand(type=INSIGHTS, listTarget=rawOptions)
+
+CG2StocksTracker -> CG2StocksTracker : parseInsightsOptions(rawOptions)
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+
+CG2StocksTracker -> Ui : showInsightsTable(portfolio, filterType, topN, showChart)
+Ui --> User : insights table + optional chart
+@enduml
+```
+
+---
+
+### Explanation
+
+This command intentionally splits responsibility between parser, controller, and UI:
+
+- `Parser` keeps `/insights` generic and forwards raw option text.
+- `CG2StocksTracker` validates option combinations and converts them into typed flags.
+- `Ui` owns presentation logic (table formatting, top-gainer filtering, and chart rendering).
+
+This keeps domain behavior easy to evolve while preserving a compact command DTO (`ParsedCommand`).
+
+### Design considerations
+
+Aspect: Where to parse `/insights` options.
+
+**Alternative 1 (current choice):** Keep parser generic for `/insights` and parse options in `CG2StocksTracker`.
+Pros: avoids inflating `ParsedCommand` with temporary insights-specific fields; keeps option evolution localized.
+Cons: command-specific validation is split between parser and controller.
+
+**Alternative 2:** Parse `/insights` options fully in `Parser` into dedicated fields.
+Pros: stronger parse-time typing.
+Cons: larger `ParsedCommand` surface and more cross-command coupling.
 
 ---
 

@@ -187,6 +187,13 @@ Shows per-holding insights (including optional filters and top gainers).
 
 Format: /insights [--type stock|etf|bond] [--top N] [--chart]
 
+Notes:
+- `--top N` shows top gainers only (holdings with positive unrealized P&L).
+- `--chart` adds an ASCII diverging chart (loss on the left, gain on the right).
+- Chart bars are scaled by unrealized percentage, not raw dollar P&L.
+- Chart scale is relative to the largest absolute unrealized percentage in the current view.
+- Invalid or duplicate options are rejected with a usage/error message.
+
 Examples:
 - `/insights`
 - `/insights --type stock`
@@ -215,6 +222,10 @@ A: Yes. Portfolios, holdings, average buy prices, latest saved prices, and reali
 Q: What happens to older save files?
 
 A: Older save files are supported. Legacy holding rows can still be loaded.
+
+Q: Why can a smaller dollar gain look larger in the `/insights --chart` output?
+
+A: The chart is percentage-based and normalized to the largest absolute unrealized percentage in the current view. This is intentional so positions of different sizes remain comparable in relative return terms.
 
 ## Command Summary
 
