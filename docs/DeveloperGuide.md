@@ -351,43 +351,101 @@ However, it means that adding new commands requires modifying existing code inst
 
 The Model component stores all application data in memory.
 
-It consists of:
+Its main classes are:
 
-- `PortfolioBook`: manages multiple portfolios
+- `PortfolioBook`: stores all portfolios and tracks which one is active
 
-- `Portfolio`: manages holdings within a portfolio
+- `Portfolio`: stores holdings and portfolio-level P&L values
 
 - `Holding`: represents a single asset
 
 
 ---
 
-### How the Model works
+### Runtime integration
 
-- `PortfolioBook` stores all portfolios and tracks the active portfolio
+`CG2StocksTracker` mainly talks to `PortfolioBook`:
 
-- `Portfolio` stores holdings using an internal collection and keeps track of cumulative realized P&L
+- Commands like `/create` and `/use` call `PortfolioBook`
 
-- `Holding` stores asset type, ticker, quantity, last price, and average buy price
+- Commands that change holdings (`/add`, `/remove`, `/set`) first get the active `Portfolio` from `PortfolioBook`
+
+- `Storage` also rebuilds model state by calling `PortfolioBook` and `Portfolio` methods during load
 
 
 ---
 
-### Class Diagram
+### `PortfolioBook` behavior (simple view)
+
+`PortfolioBook` is the top-level container for portfolios.
+
+Key behavior:
+
+- Keeps portfolios in a map keyed by portfolio name
+
+- `createPortfolio(name)` fails if the name already exists
+
+- The first created portfolio becomes active automatically
+
+- `usePortfolio(name)` switches active portfolio, but fails if the name does not exist
+
+- `getActivePortfolio()` fails when no active portfolio is selected
+
+- `ensurePortfolioExists(name)` creates the portfolio only when missing (used by storage loading)
+
+- `getPortfolios()` returns a copy list so callers cannot directly edit internal map state
+
+
+---
+
+### `Portfolio` behavior (simple view)
+
+`Portfolio` manages holdings for one portfolio and tracks cumulative realized P&L.
+
+Key behavior:
+
+- Holdings are stored by a composite key: `assetType + "|" + ticker`
+
+- `addHolding(...)`:
+Creates a new holding when missing, or updates an existing holding when the same key already exists.
+Fees are included in cost basis, so average buy price stays accurate.
+
+- `removeHolding(...)`:
+Validates holding existence and quantity, decides effective sell price, computes realized P&L, updates cumulative realized P&L, and removes the holding when quantity reaches zero.
+
+- Sell price priority in `removeHolding(...)`:
+1. Use explicit `--price` if provided.
+2. Else use holding `lastPrice` (from `/set` or restored/initial stored price).
+3. If still unavailable, fail.
+
+- `setPriceForTicker(ticker, price)` updates all holdings in this portfolio that share that ticker and returns how many were updated.
+
+- `getCurrentTotalValue()` and `getTotalUnrealizedPnl()` sum only holdings that currently have a price.
+
 
 ---
 
 ### Design considerations
 
-The Model does not depend on UI or Storage.
+Aspect: How portfolio state is organized.
 
-This ensures that:
+**Alternative 1 (current choice):** Keep a `PortfolioBook` that owns all portfolios and active-portfolio selection.
+Pros: Clear single entry point for portfolio-level operations.
+Cons: Controller still needs to fetch active portfolio before holding operations.
 
-- Business logic is kept separate
+**Alternative 2:** Let controller manage multiple standalone `Portfolio` objects directly.
+Pros: Fewer model classes.
+Cons: Active-portfolio tracking logic gets spread across controller code.
 
-- The Model can be tested independently
+Aspect: How realized P&L is handled.
 
-- Changes to UI or Storage do not affect the Model
+**Alternative 1 (current choice):** Maintain running realized P&L in `Portfolio`.
+Pros: Fast reads for `/value` and easy persistence.
+Cons: Must update correctly on every sell path.
+
+**Alternative 2:** Recompute realized P&L from transaction history every time.
+Pros: Easier auditing of historical trades.
+Cons: Requires storing full trade history and adds complexity.
 
 
 ---
@@ -398,35 +456,112 @@ This ensures that:
 
 The API of this component is specified in `Storage.java`.
 
-The Storage component is responsible for:
+`Storage` handles three persistence tasks:
 
-- Saving application data to disk
+- Load saved data into memory when the app starts
 
-- Loading data from disk
+- Save the latest in-memory data back to file after state-changing commands
 
-- Processing CSV files for bulk updates
+- Read CSV files for `/setmany` and return a summary of what succeeded/failed
 
 
 ---
 
-### How the Storage component works
+### Runtime integration
 
-- `save(...)` writes the current state to file, including portfolio realized P&L, holding quantity, average buy price, and last price
+`Storage` is used by `CG2StocksTracker` at two points:
 
-- `load(...)` reads data during application startup and restores holdings using the stored average buy price and last price
+- On startup (`new CG2StocksTracker(...)`), `storage.load()` initializes the `PortfolioBook`
 
-- `loadPriceUpdates(...)` processes CSV input
+- After successful state-changing commands (`create`, `add`, `remove`, `set`, `setmany`), `storage.save(portfolioBook)` persists state
+
+This keeps command flow in the controller, while file format and file checks stay inside `Storage`.
+
+
+---
+
+### Save file format
+
+The save file uses one record per line, separated by `|`:
+
+- `ACTIVE|<portfolioName>`
+
+- `PORTFOLIO|<name>|<totalRealizedPnl>`
+
+- `HOLDING|<portfolioName>|<assetType>|<ticker>|<quantity>|<averageBuyPrice>|<lastPrice>`
+
+
+Notes:
+
+- `ACTIVE|` with an empty second field means there is no active portfolio.
+
+- For unpriced holdings, `lastPrice` is stored as an empty field.
+
+- Older holding rows with 6 fields are still supported:
+`HOLDING|<portfolioName>|<assetType>|<ticker>|<quantity>|<restoredPrice>`.
+
+- For these older rows, `restoredPrice` is used as both `lastPrice` and `averageBuyPrice`.
+
+
+---
+
+### Key methods and behavior
+
+`load()`:
+
+- Ensures the file exists via `createFileIfMissing()`
+
+- Reads all lines and handles each record type (`ACTIVE`, `PORTFOLIO`, `HOLDING`)
+
+- Rebuilds portfolios and holdings using `PortfolioBook` and `Portfolio.restoreHolding(...)`
+
+- Applies the active portfolio only after all records are parsed
+
+
+`save(PortfolioBook)`:
+
+- Rebuilds the whole save file from current in-memory state
+
+- Persists cumulative realized P&L at portfolio level
+
+- Persists quantity, average buy price, and optional last price for each holding
+
+- Writes all lines using `Files.write(...)`
+
+
+`loadPriceUpdates(Path, Portfolio)`:
+
+- Validates file existence/type and enforces CSV header `ticker,price`
+
+- Parses each row and updates matching holdings with `Portfolio.setPriceForTicker(...)`
+
+- Accumulates both success and per-row failure details in `BulkUpdateResult`
+
+
+---
+
+### Error handling strategy
+
+- Invalid save-file structure/content is reported as `Corrupted storage file.`
+
+- File-system failures surface operation-specific messages such as `Unable to create storage file.`, `Unable to read storage file.`, `Unable to save storage file.`, and `Unable to read CSV file.`
+
+- CSV row-level errors do not stop the whole batch; they are collected in `BulkUpdateResult.failures()`
 
 
 ---
 
 ### Design considerations
 
-CSV processing is implemented in `Storage` instead of `Parser` because:
+Aspect: Where CSV batch update logic should live.
 
-- It involves file handling
+**Alternative 1 (current choice):** Keep CSV parsing and file I/O in `Storage`.
+Pros: Keeps `Parser` focused on command syntax and keeps file checks in one place.
+Cons: `Storage` handles both persistence and batch import responsibilities.
 
-- It is not part of command parsing
+**Alternative 2:** Parse CSV in `Parser` or controller.
+Pros: Reduces surface area of the `Storage` class.
+Cons: Mixes command parsing with file parsing and repeats validation logic.
 
 
 ---
