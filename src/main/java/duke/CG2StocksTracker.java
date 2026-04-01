@@ -248,10 +248,12 @@ public class CG2StocksTracker {
     }
 
     /**
-     * Updates the last price for one holding (asset type + ticker) in the active portfolio and saves the result.
+     * Updates last price(s) in the active portfolio and saves the result.
+     * If type is provided, updates one holding by type+ticker.
+     * Otherwise, updates all holdings with the same ticker.
      *
      * @param command parsed set command.
-     * @throws AppException if the holding is not found or saving fails.
+     * @throws AppException if no matching holding is found or saving fails.
      */
     private void handleSet(ParsedCommand command) throws AppException {
         Portfolio portfolio = portfolioBook.getActivePortfolio();
