@@ -1,0 +1,26 @@
+@startuml
+title /remove Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant ParsedCommand
+participant PortfolioBook
+participant Portfolio
+participant Holding
+participant Storage
+
+User -> Ui : /remove --type ... --ticker ... [--qty] [--price]
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : REMOVE command
+CG2StocksTracker -> ParsedCommand : totalFees()
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+CG2StocksTracker -> Portfolio : removeHolding(...)
+Portfolio -> Holding : removeQuantity(...)
+Portfolio --> CG2StocksTracker : RemoveResult
+CG2StocksTracker -> Storage : save(...)
+CG2StocksTracker -> Ui : show sold + realized P&L
+@enduml

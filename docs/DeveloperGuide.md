@@ -38,8 +38,8 @@ The application follows a layered command pipeline:
 4. Model classes (`PortfolioBook`, `Portfolio`, `Holding`, `Watchlist`) perform business logic.
 5. `Storage` persists state after successful state-changing operations.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/architecture-overview-class.puml]
-![Remove Command Sequence](diagrams/remove-command-sequence.png)
+![Architecture Overview Class Diagram](diagrams/PNG/architecture-overview-class.png)
+![Remove Command Sequence](diagrams/PNG/remove-command-sequence.png)
 
 ### Core class responsibilities
 
@@ -80,8 +80,8 @@ Creates a new named portfolio in `PortfolioBook`. If no active portfolio exists,
 3. Persist updated state.
 4. Print success output.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/create-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/create-command-sequence.puml]
+![Create Command Class Diagram](diagrams/PNG/create-command-class.png)
+![Create Command Sequence Diagram](diagrams/PNG/create-command-sequence.png)
 
 ### Error handling and validation
 
@@ -124,8 +124,8 @@ Sets active portfolio context used by most holdings commands.
 3. Set active context.
 4. Return confirmation.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/use-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/use-command-sequence.puml]
+![Use Command Class Diagram](diagrams/PNG/use-command-class.png)
+![Use Command Sequence Diagram](diagrams/PNG/use-command-sequence.png)
 
 ### Error handling and validation
 
@@ -179,8 +179,8 @@ Supported variants:
    - type filter -> filtered holdings.
    - default -> holdings for active portfolio, or portfolio names if none active.
 
-![List Command Class Diagram](diagrams/list-command-class.png)
-![List Command Sequence Diagram](diagrams/list-command-sequence.png)
+![List Command Class Diagram](diagrams/PNG/list-command-class.png)
+![List Command Sequence Diagram](diagrams/PNG/list-command-sequence.png)
 
 ### Error handling and validation
 
@@ -226,8 +226,8 @@ Adds units to an existing holding or creates a new holding in active portfolio.
 4. Save state.
 5. Show added/updated output.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/add-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/add-command-sequence.puml]
+![Add Command Class Diagram](diagrams/PNG/add-command-class.png)
+![Add Command Sequence Diagram](diagrams/PNG/add-command-sequence.png)
 
 ### Error handling and validation
 
@@ -275,8 +275,8 @@ Sells part or all of a holding and records realized P&L.
 5. Remove holding if quantity reaches zero.
 6. Save state and print result.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/remove-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/remove-command-sequence.puml]
+![Remove Command Class Diagram](diagrams/PNG/remove-command-class.png)
+![Remove Command Sequence Diagram](diagrams/PNG/remove-command-sequence.png)
 
 ### Error handling and validation
 
@@ -328,8 +328,8 @@ Variants:
 4. Save state.
 5. Print confirmation.
 
-![Set Command Class Diagram](diagrams/set-command-class.png)
-![Set Command Sequence Diagram](diagrams/set-command-sequence.png)
+![Set Command Class Diagram](diagrams/PNG/set-command-class.png)
+![Set Command Sequence Diagram](diagrams/PNG/set-command-sequence.png)
 
 ### Error handling and validation
 
@@ -381,8 +381,8 @@ Variants:
 3. Apply model mutation if action changes state.
 4. Save state for mutating actions.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/watch-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/watch-command-sequence.puml]
+![Watch Command Class Diagram](diagrams/PNG/watch-command-class.png)
+![Watch Command Sequence Diagram](diagrams/PNG/watch-command-sequence.png)
 
 ### Error handling and validation
 
@@ -429,8 +429,8 @@ Processes CSV rows and updates matching ticker prices in active portfolio.
 4. Return success/failure summary.
 5. Save state after processed updates.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/setmany-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/setmany-command-sequence.puml]
+![Setmany Command Class Diagram](diagrams/PNG/setmany-command-class.png)
+![Setmany Command Sequence Diagram](diagrams/PNG/setmany-command-sequence.png)
 
 ### Error handling and validation
 
@@ -474,8 +474,8 @@ Provides value and P&L summary for active portfolio.
 1. Resolve active portfolio.
 2. Compute and display totals and per-holding unrealized P&L.
 
-![Value Command Class Diagram](diagrams/value-command-class.png)
-![Value Command Sequence Diagram](diagrams/value-command-sequence.png)
+![Value Command Class Diagram](diagrams/PNG/value-command-class.png)
+![Value Command Sequence Diagram](diagrams/PNG/value-command-sequence.png)
 
 ### Error handling and validation
 
@@ -527,8 +527,8 @@ Variants within command:
 3. Build `InsightsOptions` object.
 4. Render insights table with optional chart.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/insights-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/insights-command-sequence.puml]
+![Insights Command Class Diagram](diagrams/PNG/insights-command-class.png)
+![Insights Command Sequence Diagram](diagrams/PNG/insights-command-sequence.png)
 
 ### Error handling and validation
 
@@ -570,8 +570,8 @@ Provides quick command reference.
 1. Parse `/help`.
 2. Print help summary.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/help-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/help-command-sequence.puml]
+![Help Command Class Diagram](diagrams/PNG/help-command-class.png)
+![Help Command Sequence Diagram](diagrams/PNG/help-command-sequence.png)
 
 ### Error handling and validation
 
@@ -613,8 +613,8 @@ Terminates main loop cleanly.
 2. Print goodbye.
 3. Stop run loop.
 
-[DIAGRAM PLACEHOLDER: docs/diagrams/exit-command-class.puml]
-[DIAGRAM PLACEHOLDER: docs/diagrams/exit-command-sequence.puml]
+![Exit Command Class Diagram](diagrams/PNG/exit-command-class.png)
+![Exit Command Sequence Diagram](diagrams/PNG/exit-command-sequence.png)
 
 ### Error handling and validation
 

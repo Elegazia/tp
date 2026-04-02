@@ -1,0 +1,22 @@
+@startuml
+title /setmany Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+participant Portfolio
+participant Storage
+
+User -> Ui : /setmany --file prices.csv
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : SET_MANY(filePath)
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+CG2StocksTracker -> Storage : loadPriceUpdates(filePath, portfolio)
+Storage --> CG2StocksTracker : BulkUpdateResult
+CG2StocksTracker -> Storage : save(...)
+CG2StocksTracker -> Ui : show bulk summary
+@enduml

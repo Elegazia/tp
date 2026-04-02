@@ -1,0 +1,19 @@
+@startuml
+title /insights Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+participant Portfolio
+
+User -> Ui : /insights [--type] [--top] [--chart]
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : INSIGHTS(rawOptions)
+CG2StocksTracker -> CG2StocksTracker : parseInsightsOptions(rawOptions)
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+CG2StocksTracker -> Ui : showInsightsTable(portfolio, filterType, topN, showChart)
+@enduml

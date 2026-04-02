@@ -1,0 +1,16 @@
+'@@author RishabhShenoy03
+@startuml
+title Set Command Class View
+
+class Parser
+class CG2StocksTracker
+class PortfolioBook
+class Portfolio
+class Storage
+class Ui
+
+CG2StocksTracker --> PortfolioBook : getActivePortfolio()
+CG2StocksTracker --> Portfolio : setPriceForHolding/setPriceForTicker
+CG2StocksTracker --> Storage : save()
+CG2StocksTracker --> Ui : showMessage(...)
+@enduml

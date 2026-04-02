@@ -1,0 +1,28 @@
+'@@author RishabhShenoy03
+@startuml
+title /set Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+participant Portfolio
+participant Storage
+
+User -> Ui : /set --ticker ... --price ... [--type ...]
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : SET command
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+
+alt with --type
+  CG2StocksTracker -> Portfolio : setPriceForHolding(type,ticker,price)
+else without --type
+  CG2StocksTracker -> Portfolio : setPriceForTicker(ticker,price)
+end
+
+CG2StocksTracker -> Storage : save(...)
+CG2StocksTracker -> Ui : show update confirmation
+@enduml

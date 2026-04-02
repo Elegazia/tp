@@ -1,0 +1,14 @@
+'@@author RishabhShenoy03
+@startuml
+title List Command Class View
+
+class Parser
+class CG2StocksTracker
+class PortfolioBook
+class Portfolio
+class Ui
+
+CG2StocksTracker --> PortfolioBook
+CG2StocksTracker --> Portfolio
+CG2StocksTracker --> Ui : showHoldings/showPortfolios/showPortfolioSummaries
+@enduml

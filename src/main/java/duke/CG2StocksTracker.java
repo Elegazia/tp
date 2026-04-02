@@ -160,7 +160,7 @@ public class CG2StocksTracker {
      * @param command parsed list command.
      * @throws AppException if an active portfolio is required but unavailable.
      */
-    //@@author 
+    //@@author
     private void handleList(ParsedCommand command) throws AppException {
         String target = command.listTarget();
 
@@ -417,7 +417,6 @@ public class CG2StocksTracker {
 
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i].toLowerCase();
-
             switch (token) {
             case "--type":
                 if (i + 1 >= tokens.length) {

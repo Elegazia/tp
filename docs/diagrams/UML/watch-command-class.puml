@@ -1,0 +1,17 @@
+@startuml
+title Watch Command Class View
+
+class Parser
+class CG2StocksTracker
+class Watchlist
+class PortfolioBook
+class Portfolio
+class Storage
+class Ui
+
+CG2StocksTracker --> Watchlist : add/remove/list/buy
+Watchlist --> PortfolioBook : buyItem(...)
+PortfolioBook --> Portfolio
+CG2StocksTracker --> Storage : save() for mutating actions
+CG2StocksTracker --> Ui : show watch output
+@enduml

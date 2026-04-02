@@ -1,0 +1,9 @@
+@startuml
+title Help Command Class View
+
+class Parser
+class CG2StocksTracker
+class Ui
+
+CG2StocksTracker --> Ui : showHelp()
+@enduml

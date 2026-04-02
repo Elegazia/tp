@@ -1,0 +1,27 @@
+@startuml
+title Command Dispatch Main Flow
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant ParsedCommand
+participant Model
+participant Storage
+
+User -> Ui : enter command text
+Ui -> CG2StocksTracker : readCommand()
+CG2StocksTracker -> Parser : parse(input)
+Parser --> CG2StocksTracker : ParsedCommand
+CG2StocksTracker -> ParsedCommand : type()
+
+alt state-changing command
+  CG2StocksTracker -> Model : execute mutation
+  CG2StocksTracker -> Storage : save(...)
+else read-only command
+  CG2StocksTracker -> Model : execute query
+end
+
+CG2StocksTracker -> Ui : show output
+Ui --> User : response
+@enduml

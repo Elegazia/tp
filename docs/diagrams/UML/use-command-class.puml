@@ -1,0 +1,11 @@
+@startuml
+title Use Command Class View
+
+class Parser
+class CG2StocksTracker
+class PortfolioBook
+class Ui
+
+CG2StocksTracker --> PortfolioBook : usePortfolio(name)
+CG2StocksTracker --> Ui : show active
+@enduml

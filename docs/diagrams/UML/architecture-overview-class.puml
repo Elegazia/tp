@@ -1,0 +1,24 @@
+@startuml
+title Architecture Overview
+
+class Ui
+class CG2StocksTracker
+class Parser
+class ParsedCommand
+class PortfolioBook
+class Portfolio
+class Holding
+class Watchlist
+class WatchlistItem
+class Storage
+
+Ui --> CG2StocksTracker
+CG2StocksTracker --> Parser
+Parser --> ParsedCommand
+CG2StocksTracker --> PortfolioBook
+PortfolioBook --> Portfolio
+Portfolio --> Holding
+CG2StocksTracker --> Watchlist
+Watchlist --> WatchlistItem
+CG2StocksTracker --> Storage
+@enduml

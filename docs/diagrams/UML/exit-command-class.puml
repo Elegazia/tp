@@ -1,0 +1,9 @@
+@startuml
+title Exit Command Class View
+
+class Parser
+class CG2StocksTracker
+class Ui
+
+CG2StocksTracker --> Ui : showGoodbye()
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+title /exit Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+
+User -> Ui : /exit
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : EXIT
+CG2StocksTracker -> Ui : showGoodbye()
+CG2StocksTracker --> Ui : stop main loop
+@enduml

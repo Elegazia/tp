@@ -1,0 +1,26 @@
+'@@author RishabhShenoy03
+@startuml
+title /list Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+participant Portfolio
+
+User -> Ui : /list [variant]
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : LIST(listTarget)
+
+alt portfolios view
+  CG2StocksTracker -> Ui : showPortfolioSummaries(book)
+else filtered holdings view
+  CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+  PortfolioBook --> CG2StocksTracker : Portfolio
+  CG2StocksTracker -> Ui : showHoldings(portfolio, filter)
+else default view
+  CG2StocksTracker -> Ui : showHoldings(active) or showPortfolios(book)
+end
+@enduml

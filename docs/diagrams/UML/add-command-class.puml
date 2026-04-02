@@ -1,0 +1,20 @@
+@startuml
+title Add Command Class View
+
+class Parser
+class ParsedCommand
+class CG2StocksTracker
+class PortfolioBook
+class Portfolio
+class Holding
+class Storage
+class Ui
+
+Parser --> ParsedCommand
+CG2StocksTracker --> ParsedCommand : totalFees()
+CG2StocksTracker --> PortfolioBook : getActivePortfolio()
+CG2StocksTracker --> Portfolio : addHolding(...)
+Portfolio --> Holding : addQuantity(...)
+CG2StocksTracker --> Storage : save()
+CG2StocksTracker --> Ui : showAddedHolding/showMessage
+@enduml

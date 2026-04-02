@@ -1,0 +1,19 @@
+'@@author RishabhShenoy03
+@startuml
+title /value Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+participant Portfolio
+
+User -> Ui : /value
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : VALUE
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+CG2StocksTracker -> Ui : showPortfolioValue(portfolio)
+@enduml
