@@ -1,0 +1,54 @@
+@startuml
+title Command Execution Sequence (Parser + ParsedCommand + Linked Components)
+
+actor User
+participant Ui
+participant CG2StocksTracker as App
+participant Parser
+participant ParsedCommand as Cmd
+participant PortfolioBook as Book
+participant Portfolio
+participant Storage
+
+User -> Ui: types command
+Ui -> App: readCommand()
+
+App -> Parser: parse(input)
+alt invalid syntax/options
+    Parser --> App: throws AppException
+    App -> Ui: showError(message)
+else valid command
+    Parser --> App: Cmd
+
+    alt LIST / VALUE
+        App -> Book: getActivePortfolio()
+        Book --> App: Portfolio
+        App -> Portfolio: read-only query
+        App -> Ui: show output
+    else ADD
+        App -> Book: getActivePortfolio()
+        Book --> App: Portfolio
+        App -> Portfolio: addHolding(type,ticker,qty,price,fees)
+        Portfolio --> App: updated qty
+        App -> Storage: save(book)
+        Storage --> App: ok
+        App -> Ui: show added/updated message
+    else REMOVE
+        App -> Book: getActivePortfolio()
+        Book --> App: Portfolio
+        App -> Portfolio: removeHolding(type,ticker,qty?,price?,fees)
+        Portfolio --> App: RemoveResult
+        App -> Storage: save(book)
+        Storage --> App: ok
+        App -> Ui: show sold + realized P&L
+    else SETMANY
+        App -> Book: getActivePortfolio()
+        Book --> App: Portfolio
+        App -> Storage: loadPriceUpdates(csv, portfolio)
+        Storage --> App: BulkUpdateResult
+        App -> Storage: save(book)
+        Storage --> App: ok
+        App -> Ui: show bulk update summary
+    end
+end
+@enduml

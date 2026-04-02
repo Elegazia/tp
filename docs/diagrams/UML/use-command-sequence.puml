@@ -1,0 +1,16 @@
+@startuml
+title /use Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+
+User -> Ui : /use longterm
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : USE(name)
+CG2StocksTracker -> PortfolioBook : usePortfolio(name)
+CG2StocksTracker -> Ui : show active portfolio
+@enduml

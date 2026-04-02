@@ -1,0 +1,17 @@
+@startuml
+title Remove Command Class View
+
+class Parser
+class ParsedCommand
+class CG2StocksTracker
+class Portfolio
+class Holding
+class Storage
+class Ui
+
+CG2StocksTracker --> ParsedCommand : totalFees()
+CG2StocksTracker --> Portfolio : removeHolding(...)
+Portfolio --> Holding : removeQuantity(...)
+CG2StocksTracker --> Storage : save()
+CG2StocksTracker --> Ui : showMessage(...)
+@enduml

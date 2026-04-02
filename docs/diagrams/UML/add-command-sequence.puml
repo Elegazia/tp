@@ -1,0 +1,23 @@
+@startuml
+title /add Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant ParsedCommand
+participant PortfolioBook
+participant Portfolio
+participant Storage
+
+User -> Ui : /add --type ... --ticker ... --qty ... --price ...
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : ADD command
+CG2StocksTracker -> ParsedCommand : totalFees()
+CG2StocksTracker -> PortfolioBook : getActivePortfolio()
+PortfolioBook --> CG2StocksTracker : Portfolio
+CG2StocksTracker -> Portfolio : addHolding(..., fees)
+CG2StocksTracker -> Storage : save(...)
+CG2StocksTracker -> Ui : show add/update output
+@enduml

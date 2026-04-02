@@ -1,0 +1,16 @@
+@startuml
+title SetMany Command Class View
+
+class Parser
+class CG2StocksTracker
+class Storage
+class PortfolioBook
+class Portfolio
+class Ui
+
+CG2StocksTracker --> PortfolioBook : getActivePortfolio()
+CG2StocksTracker --> Storage : loadPriceUpdates(file, portfolio)
+Storage --> Portfolio : setPriceForTicker(...)
+CG2StocksTracker --> Storage : save(...)
+CG2StocksTracker --> Ui : showBulkUpdateResult(...)
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+title /watch Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant Watchlist
+participant PortfolioBook
+participant Storage
+
+User -> Ui : /watch <action> ...
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : WATCH(name=action,...)
+
+alt action=list
+  CG2StocksTracker -> Ui : showWatchlist(...)
+else action=add/remove
+  CG2StocksTracker -> Watchlist : addItem/removeItem
+  CG2StocksTracker -> Storage : save(...)
+  CG2StocksTracker -> Ui : show confirmation
+else action=buy
+  CG2StocksTracker -> Watchlist : buyItem(...,portfolioBook)
+  Watchlist -> PortfolioBook : getPortfolio(...)
+  CG2StocksTracker -> Storage : save(...)
+  CG2StocksTracker -> Ui : show bought output
+end
+@enduml

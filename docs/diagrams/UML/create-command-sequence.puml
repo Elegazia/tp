@@ -1,0 +1,19 @@
+@startuml
+title /create Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+participant PortfolioBook
+participant Storage
+
+User -> Ui : /create longterm
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : CREATE(name)
+CG2StocksTracker -> PortfolioBook : createPortfolio(name)
+CG2StocksTracker -> Storage : save(...)
+CG2StocksTracker -> Ui : show created + active
+Ui --> User : success
+@enduml

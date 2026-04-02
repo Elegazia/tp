@@ -1,0 +1,14 @@
+@startuml
+title /help Sequence
+
+actor User
+participant Ui
+participant CG2StocksTracker
+participant Parser
+
+User -> Ui : /help
+Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Parser : parse(...)
+Parser --> CG2StocksTracker : HELP
+CG2StocksTracker -> Ui : showHelp()
+@enduml
