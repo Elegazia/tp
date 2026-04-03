@@ -1,3 +1,4 @@
+//@@author zenweilow
 package duke;
 
 import java.nio.file.Path;
@@ -160,7 +161,6 @@ public class CG2StocksTracker {
      * @param command parsed list command.
      * @throws AppException if an active portfolio is required but unavailable.
      */
-    //@@author
     private void handleList(ParsedCommand command) throws AppException {
         String target = command.listTarget();
 

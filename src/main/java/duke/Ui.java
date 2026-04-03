@@ -1,3 +1,4 @@
+//@@author joeLku1
 package duke;
 import java.text.DecimalFormat;
 import java.util.Comparator;
@@ -134,7 +135,6 @@ public class Ui {
         }
     }
 
-    //@@author RishabhShenoy03
     /**
      * Prints portfolio-level realized and unrealized profit/loss summaries
      * in alphabetical portfolio-name order.
@@ -156,7 +156,6 @@ public class Ui {
         }
     }
     
-    //@@author
     /**
      * Prints all watchlist items with optional target prices.
      *

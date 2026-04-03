@@ -1,3 +1,4 @@
+//@@author Elegazia
 package duke;
 
 public enum AssetType {

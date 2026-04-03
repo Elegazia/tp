@@ -1,3 +1,4 @@
+//@@author Elegazia
 package duke;
 
 import java.util.ArrayList;
@@ -117,12 +118,10 @@ public class Portfolio {
         return totalRealizedPnl;
     }
 
-    //@@author RishabhShenoy03
     public void setTotalRealizedPnl(double totalRealizedPnl) {
         this.totalRealizedPnl = totalRealizedPnl;
     }
     
-    //@@author RishabhShenoy03
     public double getTotalUnrealizedPnl() {
         double total = 0.0;
         for (Holding holding : holdings.values()) {
@@ -133,7 +132,6 @@ public class Portfolio {
         return total;
     }
 
-    //@@author RishabhShenoy03
     public void restoreHolding(AssetType assetType, String ticker, double quantity,
                                Double lastPrice, double averageBuyPrice) {
         Holding holding = new Holding(assetType, ticker, quantity, averageBuyPrice);
