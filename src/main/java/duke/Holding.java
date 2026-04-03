@@ -62,8 +62,8 @@ public class Holding {
         quantity += quantityToAdd;
         averageBuyPrice = (totalCostBefore + addedCost) / quantity;
         //@@author zenweilow
-        assert quantity > 0 && averageBuyPrice > 0
-                : "Holding state must remain positive after adding quantity";
+        boolean hasValidHoldingState = quantity > 0 && averageBuyPrice > 0;
+        assert hasValidHoldingState : "Holding state must remain positive after adding quantity";
         //@@author Elegazia
     }
 
@@ -91,9 +91,9 @@ public class Holding {
 
         //@@author zenweilow
         assert quantity >= 0 : "Holding quantity cannot become negative after removal";
-        assert quantity != 0 || averageBuyPrice == 0
+        boolean resetAverageBuyPriceCorrectly = quantity != 0 || averageBuyPrice == 0;
+        assert resetAverageBuyPriceCorrectly
                 : "Average buy price should reset when holding quantity becomes zero";
-
         //@@author Elegazia
         return realizedPnl;
     }
