@@ -23,8 +23,10 @@ CG2StocksTracker is designed to give a clear, accurate view of your holdings wit
 5. Run the app with:
 
 ```bash
-java -jar <release-name>.jar
+java -jar tp.jar
 ```
+
+If your downloaded file has a different name, replace `tp.jar` with that filename.
 
 6. Type commands and press Enter.
 7. Use `/help` to view available commands.
