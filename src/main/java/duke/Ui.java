@@ -414,9 +414,11 @@ public class Ui {
             System.out.println("- Top contributor: " + bestHolding.getTicker()
                     + " " + formatSignedMoney(bestHolding.getUnrealizedPnl()));
         }
-        if (worstHolding != null) {
+        if (worstHolding != null && worstHolding.getUnrealizedPnl() < 0) {
             System.out.println("- Top detractor: " + worstHolding.getTicker()
                     + " " + formatSignedMoney(worstHolding.getUnrealizedPnl()));
+        } else {
+            System.out.println("- Top detractor: none");
         }
     }
 

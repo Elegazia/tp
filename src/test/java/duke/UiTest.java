@@ -227,6 +227,24 @@ public class UiTest {
     }
 
     @Test
+    void showInsightsTable_allPositiveHoldings_showsNoTopDetractor() {
+        Ui ui = new Ui();
+        Portfolio portfolio = new Portfolio("t1");
+        portfolio.addHolding(AssetType.STOCK, "AAA", 1, 100, 0);
+        portfolio.addHolding(AssetType.STOCK, "BBB", 1, 100, 0);
+
+        portfolio.setPriceForHolding(AssetType.STOCK, "AAA", 110);
+        portfolio.setPriceForHolding(AssetType.STOCK, "BBB", 105);
+
+        ui.showInsightsTable(portfolio, null, null, false);
+
+        String output = capturedOut.toString();
+        assertTrue(output.contains("- Holdings: 2 (priced: 2, unpriced: 0)"));
+        assertTrue(output.contains("- Top contributor: AAA +10.00"));
+        assertTrue(output.contains("- Top detractor: none"));
+    }
+
+    @Test
     void formatHelpers_roundAsExpected() {
         assertEquals("123.46", Ui.formatMoney(123.456));
         assertEquals("12.34", Ui.formatNumber(12.340000));
