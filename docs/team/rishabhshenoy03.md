@@ -81,7 +81,7 @@ Given below are my contributions to the project.
 
 ### Contributions to team-based tasks
 
-- Helped prepare and release `v1.0`.
+- Helped prepare and release `v1.0` and `v2.1`
 - Helped drive UI and output consistency during periods of frequent command evolution.
 - Supported team integration by keeping parser, tests, and documentation aligned during refactoring-heavy phases.
 - Took initiative for grouping and delegating tasks, often leading discussions and keeping the team on track for deadlines
