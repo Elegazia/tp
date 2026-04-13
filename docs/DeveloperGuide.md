@@ -110,6 +110,7 @@ Sets active portfolio context used by most holdings commands.
 
 - Parsing: `Parser.parseUse(...)`.
 - Execution: `CG2StocksTracker.handleUse(...)` -> `portfolioBook.usePortfolio(name)`.
+- Persistence: state is saved via `save()`.
 
 ### Class responsibilities
 
@@ -121,7 +122,8 @@ Sets active portfolio context used by most holdings commands.
 1. Parse `/use NAME`.
 2. Validate portfolio exists.
 3. Set active context.
-4. Return confirmation.
+4. Persist updated state.
+5. Return confirmation.
 
 ![Use Command Class Diagram](diagrams/PNG/use-command-class.png)
 ![Use Command Sequence Diagram](diagrams/PNG/use-command-sequence.png)

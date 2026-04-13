@@ -67,6 +67,7 @@ CG2StocksTracker stores data in plain text files under `data/`.
 Data is saved automatically after successful state-changing commands:
 
 - `/create`
+- `/use`
 - `/add`
 - `/remove`
 - `/set`

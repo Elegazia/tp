@@ -155,14 +155,15 @@ public class CG2StocksTracker {
     }
 
     /**
-     * Switches the active portfolio.
+     * Switches the active portfolio and persists the updated active context.
      *
      * @param command parsed use command.
-     * @throws AppException if the target portfolio does not exist.
+     * @throws AppException if the target portfolio does not exist or saving fails.
      */
     private void handleUse(ParsedCommand command) throws AppException {
         String name = command.name();
         portfolioBook.usePortfolio(name);
+        save();
         ui.showMessage("Active portfolio: " + name);
     }
 
