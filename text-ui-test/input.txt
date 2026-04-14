@@ -38,4 +38,8 @@
 /add --type etf --ticker VOO --qty 1 --price 310
 /set --ticker VOO --price 650
 /value
+/insights
+/insights --type stock
+/insights --top 2
+/insights --chart
 /exit
