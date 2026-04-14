@@ -80,6 +80,70 @@ Given below are my contributions to the project.
 
 ---
 
+### Bug Fix: Rejected blank portfolio names in `/create` and `/use`
+
+* What:
+
+    * Fixed `/create " "` and `/use " "` accepting blank or whitespace-only portfolio names.
+* Why:
+
+    * Invalid portfolio names could propagate into the model and storage layers, causing undefined behaviour.
+* How:
+
+    * Added a `validatePortfolioName()` helper in `Parser` that rejects null, blank, and `/`-prefixed names.
+    * Added regression tests (`parseCreate_withBlankQuotedName_throws`, `parseUse_withBlankQuotedName_throws`).
+
+---
+
+### Enhancement: Added assertions across core classes
+
+* What:
+
+    * Added Java `assert` statements for preconditions, postconditions, and invariants in `Parser`, `Portfolio`, `PortfolioBook`, and `Storage`.
+* Why:
+
+    * Catches programmer errors early and documents the assumptions each method relies on.
+* How:
+
+    * `Parser`: asserts on token validity and result correctness in `parseCreate`/`parseUse`/`tokenise`.
+    * `Portfolio`: asserts on input validity in `addHolding` and null-safety in `getHoldings`.
+    * `PortfolioBook`: asserts on name validity in `createPortfolio`/`usePortfolio` and null-safety in `getPortfolios`.
+    * `Storage`: asserts on file existence after init/write, non-null data during load/save, and loop invariants.
+
+---
+
+### Enhancement: Added logging and suppressed console log output
+
+* What:
+
+    * Added `java.util.logging` calls in `CG2StocksTracker` (command reception, failures, persistence) and `Storage` (load, save, quarantine, watchlist operations).
+    * Configured `LogManager.reset()` in `main()` to suppress default console handler output so users do not see raw log lines.
+* Why:
+
+    * Provides a diagnostic trail for debugging without polluting the user-facing CLI output.
+* How:
+
+    * Used `LOGGER.fine()` for routine events and `LOGGER.log(Level.WARNING/SEVERE, ...)` for errors.
+    * Reset the root logger's handlers at startup so log output does not print to stderr.
+
+---
+
+### Enhancement: Refactored UI and controller for readability
+
+* What:
+
+    * Extracted a `printFormatted()` helper in `Ui` to eliminate duplicated `System.out.printf` + `println` patterns.
+    * Applied SLAP (Single Level of Abstraction Principle) refactoring in `CG2StocksTracker`, `Storage`, and `Ui`.
+* Why:
+
+    * Reduces code duplication and improves readability of long methods.
+* How:
+
+    * Replaced repeated `System.out.printf(...); System.out.println();` calls with `printFormatted(...)`.
+    * Broke down multi-step methods into smaller private helpers at a consistent abstraction level.
+
+---
+
 ### Code contributed
 
 * [RepoSense contribution link](https://nus-cs2113-ay2526-s2.github.io/tp-dashboard/?search=w09-4&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=docs~functional-code~other~test-code&since=2026-02-20T00%3A00%3A00&filteredFileName=&tabOpen=true&tabType=authorship&tabAuthor=YOUR_USERNAME&tabRepo=AY2526S2-CS2113-W09-4%2Ftp%5Bmaster%5D&authorshipIsMergeGroup=false&authorshipFileTypes=docs~functional-code~other~test-code&authorshipIsBinaryFileTypeChecked=false&authorshipIsIgnoredFilesChecked=false)
@@ -100,14 +164,23 @@ Given below are my contributions to the project.
     * Refined descriptions of parser validation logic, including option parsing and error handling paths.
     * Added/updated UML sequence diagrams for `/set`, `/value`, and `/list` to match implemented behaviour.
     * Ensured DG explanations are consistent with current command contracts and no longer reflect outdated command signatures.
+    * Merged duplicate value-proposition paragraphs in the Developer Guide.
 
 ---
 
+### Testing
+
+* Added regression tests for blank-name validation in `ParserTest` (`parseCreate_withBlankQuotedName_throws`, `parseUse_withBlankQuotedName_throws`).
+* Updated `UiTest` assertions to match spelling changes (e.g. "Unrealised").
+* Regenerated and synchronised `text-ui-test/EXPECTED.TXT` with actual program output after spelling, error-message, and structural changes.
+
+---
 
 ### Contributions to team-based tasks
 
 * Helped prepare and release `v1.0`.
 * Supported team integration during refactoring-heavy phases.
+* Resolved git merge conflicts in `Ui.java` and `Parser.java` after concurrent changes.
 * Contributed to task coordination and keeping the team aligned with deadlines.
 
 ---

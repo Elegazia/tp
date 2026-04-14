@@ -2,6 +2,7 @@
 package duke;
 
 import java.nio.file.Path;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -67,6 +68,7 @@ public class CG2StocksTracker {
      * @param args command-line arguments (unused).
      */
     public static void main(String[] args) {
+        LogManager.getLogManager().reset();
         new CG2StocksTracker(FILE_PATH).run();
     }
 

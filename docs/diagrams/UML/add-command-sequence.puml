@@ -10,10 +10,8 @@ participant ":ParsedCommand" as ParsedCommand
 participant ":PortfolioBook" as PortfolioBook
 participant ":Portfolio" as Portfolio
 participant ":Storage" as Storage
-
-User -> Ui : /add ~--type ... ~--ticker ... ~--qty ... ~--price ...
-CG2StocksTracker -> Ui : readCommand()
-Ui --> CG2StocksTracker : command text
+User -> Ui : /add --type ... --ticker ... --qty ... --price ...
+Ui -> CG2StocksTracker : command text
 CG2StocksTracker -> Parser : parse(...)
 Parser --> CG2StocksTracker : ADD command
 CG2StocksTracker -> ParsedCommand : totalFees()

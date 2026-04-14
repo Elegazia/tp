@@ -368,6 +368,92 @@ Total unrealized P&L: +6.00
 
 
 ----------------------------------------
+Insights for portfolio: RishPortfolio
+#   TYPE  TICKER          QTY      AVG     LAST      U_PNL       U%
+----------------------------------------------------------------------
+1   BOND  BND               3    80.00    82.00      +6.00   +2.50%
+2   ETF   SPY               2   500.00   500.00      +0.00   +0.00%
+3   STOCK VOO               1   300.00   300.00      +0.00   +0.00%
+4   ETF   VOO               1   310.00   310.00      +0.00   +0.00%
+----------------------------------------------------------------------
+Summary:
+- Holdings: 4 (priced: 4, unpriced: 0)
+- Open cost basis: 1850.00
+- Unrealized P&L: +6.00 (+0.32%)
+- Realized P&L (portfolio): +440.00
+- Net P&L: +446.00
+- Top contributor: BND +6.00
+- Top detractor: none
+----------------------------------------
+
+
+----------------------------------------
+Insights for portfolio: RishPortfolio
+View: type=STOCK, top=ALL
+#   TYPE  TICKER          QTY      AVG     LAST      U_PNL       U%
+----------------------------------------------------------------------
+1   STOCK VOO               1   300.00   300.00      +0.00   +0.00%
+----------------------------------------------------------------------
+Summary:
+- Holdings: 1 (priced: 1, unpriced: 0)
+- Open cost basis: 300.00
+- Unrealized P&L: +0.00 (+0.00%)
+- Realized P&L (portfolio): +440.00
+- Net P&L: +440.00
+- Top contributor: VOO +0.00
+- Top detractor: none
+----------------------------------------
+
+
+----------------------------------------
+Insights for portfolio: RishPortfolio
+View: type=ALL, top=2
+#   TYPE  TICKER          QTY      AVG     LAST      U_PNL       U%
+----------------------------------------------------------------------
+1   BOND  BND               3    80.00    82.00      +6.00   +2.50%
+2   ETF   SPY               2   500.00   500.00      +0.00   +0.00%
+----------------------------------------------------------------------
+Summary:
+- Holdings: 4 (priced: 4, unpriced: 0)
+- Open cost basis: 1850.00
+- Unrealized P&L: +6.00 (+0.32%)
+- Realized P&L (portfolio): +440.00
+- Net P&L: +446.00
+- Top contributor: BND +6.00
+- Top detractor: none
+----------------------------------------
+
+
+----------------------------------------
+Insights for portfolio: RishPortfolio
+#   TYPE  TICKER          QTY      AVG     LAST      U_PNL       U%
+----------------------------------------------------------------------
+1   BOND  BND               3    80.00    82.00      +6.00   +2.50%
+2   ETF   SPY               2   500.00   500.00      +0.00   +0.00%
+3   STOCK VOO               1   300.00   300.00      +0.00   +0.00%
+4   ETF   VOO               1   310.00   310.00      +0.00   +0.00%
+
+P&L chart (loss | gain):
+Scale: full side width = +2.50%
+           -----------------------|+++++++++++++++++++++++
+           loss                   |                   gain
+BND                               |+++++++++++++++++++++++     +2.50%
+SPY                               |                            +0.00%
+VOO                               |                            +0.00%
+VOO                               |                            +0.00%
+----------------------------------------------------------------------
+Summary:
+- Holdings: 4 (priced: 4, unpriced: 0)
+- Open cost basis: 1850.00
+- Unrealized P&L: +6.00 (+0.32%)
+- Realized P&L (portfolio): +440.00
+- Net P&L: +446.00
+- Top contributor: BND +6.00
+- Top detractor: none
+----------------------------------------
+
+
+----------------------------------------
 Thank you and goodbye.
 ----------------------------------------
 

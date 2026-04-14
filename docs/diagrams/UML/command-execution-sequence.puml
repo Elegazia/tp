@@ -10,7 +10,6 @@ participant ":ParsedCommand" as Cmd
 participant ":PortfolioBook" as Book
 participant ":Portfolio" as Portfolio
 participant ":Storage" as Storage
-
 User -> Ui: types command
 App -> Ui: readCommand()
 Ui --> App: command text
