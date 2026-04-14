@@ -1,6 +1,7 @@
 @startuml
 title /remove Sequence
 
+autoactivate on
 actor User
 participant ":Ui" as Ui
 participant ":CG2StocksTracker" as CG2StocksTracker
@@ -10,8 +11,10 @@ participant ":PortfolioBook" as PortfolioBook
 participant ":Portfolio" as Portfolio
 participant ":Holding" as Holding
 participant ":Storage" as Storage
-User -> Ui : /remove --type ... --ticker ... [--qty] [--price]
-Ui -> CG2StocksTracker : command text
+
+User -> Ui : /remove ~--type ... ~--ticker ... [~--qty] [~--price]
+CG2StocksTracker -> Ui : readCommand()
+Ui --> CG2StocksTracker : command text
 CG2StocksTracker -> Parser : parse(...)
 Parser --> CG2StocksTracker : REMOVE command
 CG2StocksTracker -> ParsedCommand : totalFees()

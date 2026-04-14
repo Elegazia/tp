@@ -1,6 +1,7 @@
 @startuml
 title /add Sequence
 
+autoactivate on
 actor User
 participant ":Ui" as Ui
 participant ":CG2StocksTracker" as CG2StocksTracker

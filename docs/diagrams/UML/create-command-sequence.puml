@@ -1,6 +1,7 @@
 @startuml
 title /create Sequence
 
+autoactivate on
 actor User
 participant ":Ui" as Ui
 participant ":CG2StocksTracker" as CG2StocksTracker
@@ -8,7 +9,8 @@ participant ":Parser" as Parser
 participant ":PortfolioBook" as PortfolioBook
 participant ":Storage" as Storage
 User -> Ui : /create longterm
-Ui -> CG2StocksTracker : command text
+CG2StocksTracker -> Ui : readCommand()
+Ui --> CG2StocksTracker : command text
 CG2StocksTracker -> Parser : parse(...)
 Parser --> CG2StocksTracker : CREATE(name)
 CG2StocksTracker -> PortfolioBook : createPortfolio(name)
