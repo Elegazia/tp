@@ -27,7 +27,7 @@ class Ui {
   + showPortfolioSummaries(portfolioBook: PortfolioBook)
 }
 
-CG2StocksTracker --> PortfolioBook
-CG2StocksTracker --> Portfolio
-CG2StocksTracker --> Ui : showHoldings/showPortfolios/showPortfolioSummaries
+CG2StocksTracker ..> PortfolioBook
+CG2StocksTracker ..> Portfolio
+CG2StocksTracker ..> Ui : showHoldings/showPortfolios/showPortfolioSummaries
 @enduml

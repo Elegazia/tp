@@ -13,5 +13,5 @@ class Ui {
   + showHelp()
 }
 
-CG2StocksTracker --> Ui : showHelp()
+CG2StocksTracker ..> Ui : showHelp()
 @enduml

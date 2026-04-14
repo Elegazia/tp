@@ -28,9 +28,9 @@ class InsightsOptions {
   + showChart: boolean
 }
 
-Parser --> CG2StocksTracker : raw options via ParsedCommand.listTarget
-CG2StocksTracker --> InsightsOptions : parseInsightsOptions(...)
-CG2StocksTracker --> PortfolioBook : getActivePortfolio()
-CG2StocksTracker --> Ui : showInsightsTable(portfolio, options)
-Ui --> Portfolio
+Parser ..> CG2StocksTracker : raw options via ParsedCommand.listTarget
+CG2StocksTracker ..> InsightsOptions : parseInsightsOptions(...)
+CG2StocksTracker ..> PortfolioBook : getActivePortfolio()
+CG2StocksTracker ..> Ui : showInsightsTable(portfolio, options)
+Ui ..> Portfolio
 @enduml

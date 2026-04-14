@@ -26,9 +26,9 @@ class Ui {
   + showMessage(message: String)
 }
 
-CG2StocksTracker --> PortfolioBook : getActivePortfolio()
-CG2StocksTracker --> Storage : loadPriceUpdates(file, portfolio)
-Storage --> Portfolio : setPriceForTicker(...)
-CG2StocksTracker --> Storage : save(...)
-CG2StocksTracker --> Ui : showBulkUpdateResult(...)
+CG2StocksTracker ..> PortfolioBook : getActivePortfolio()
+CG2StocksTracker ..> Storage : loadPriceUpdates(file, portfolio)
+Storage ..> Portfolio : setPriceForTicker(...)
+CG2StocksTracker ..> Storage : save(...)
+CG2StocksTracker ..> Ui : showBulkUpdateResult(...)
 @enduml

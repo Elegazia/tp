@@ -42,11 +42,11 @@ class Ui {
   + showMessage(message: String)
 }
 
-Parser --> ParsedCommand
-CG2StocksTracker --> ParsedCommand : totalFees()
-CG2StocksTracker --> PortfolioBook : getActivePortfolio()
-CG2StocksTracker --> Portfolio : addHolding(...)
-Portfolio --> Holding : addQuantity(...)
-CG2StocksTracker --> Storage : save()
-CG2StocksTracker --> Ui : showAddedHolding/showMessage
+Parser ..> ParsedCommand
+CG2StocksTracker ..> ParsedCommand : totalFees()
+CG2StocksTracker ..> PortfolioBook : getActivePortfolio()
+CG2StocksTracker ..> Portfolio : addHolding(...)
+Portfolio *-- Holding
+CG2StocksTracker ..> Storage : save()
+CG2StocksTracker ..> Ui : showAddedHolding/showMessage
 @enduml

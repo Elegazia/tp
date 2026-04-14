@@ -28,8 +28,8 @@ class Ui {
   + showMessage(message: String)
 }
 
-CG2StocksTracker --> PortfolioBook : getActivePortfolio()
-CG2StocksTracker --> Portfolio : setPriceForHolding/setPriceForTicker
-CG2StocksTracker --> Storage : save()
-CG2StocksTracker --> Ui : showMessage(...)
+CG2StocksTracker ..> PortfolioBook : getActivePortfolio()
+CG2StocksTracker ..> Portfolio : setPriceForHolding/setPriceForTicker
+CG2StocksTracker ..> Storage : save()
+CG2StocksTracker ..> Ui : showMessage(...)
 @enduml
