@@ -121,8 +121,8 @@ public class UiTest {
 
         String output = capturedOut.toString();
         assertTrue(output.contains("Portfolios (alphabetical):"));
-        int alphaIdx = output.indexOf("alpha realized=+0.00 unrealised=+50.00");
-        int zetaIdx = output.indexOf("zeta realized=+0.00 unrealised=+0.00");
+        int alphaIdx = output.indexOf("alpha realized=+0.00 unrealized=+50.00");
+        int zetaIdx = output.indexOf("zeta realized=+0.00 unrealized=+0.00");
         assertTrue(alphaIdx >= 0);
         assertTrue(zetaIdx > alphaIdx);
     }
@@ -186,14 +186,14 @@ public class UiTest {
         assertTrue(output.contains("Portfolio: retirement"));
         assertTrue(output.contains("Current total value: 1000.00"));
         assertTrue(output.contains("Realized P&L: +0.00"));
-        assertTrue(output.contains("Unrealised P&L by holding:"));
+        assertTrue(output.contains("Unrealized P&L by holding:"));
         assertTrue(output.contains("TICKR  TYPE"));
         assertTrue(output.contains("BND"));
         assertTrue(output.contains("BOND"));
         assertTrue(output.contains("MSFT"));
         assertTrue(output.contains("STOCK"));
         assertTrue(output.contains("+50.00"));
-        assertTrue(output.contains("Total unrealised P&L: +50.00"));
+        assertTrue(output.contains("Total unrealized P&L: +50.00"));
     }
 
     @Test

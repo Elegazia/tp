@@ -19,7 +19,7 @@ class Portfolio {
 }
 
 class Ui {
-  + showInsightsTable(portfolio: Portfolio, options: InsightsOptions)
+  + showInsightsTable(portfolio: Portfolio, filterType: AssetType, topN: Integer, showChart: boolean)
 }
 
 class InsightsOptions {
@@ -28,9 +28,10 @@ class InsightsOptions {
   + showChart: boolean
 }
 
-Parser --> CG2StocksTracker : raw options via ParsedCommand.listTarget
-CG2StocksTracker --> InsightsOptions : parseInsightsOptions(...)
-CG2StocksTracker --> PortfolioBook : getActivePortfolio()
-CG2StocksTracker --> Ui : showInsightsTable(portfolio, options)
-Ui --> Portfolio
+Parser ..> ParsedCommand
+CG2StocksTracker ..> InsightsOptions : parseInsightsOptions(...)
+CG2StocksTracker ..> ParsedCommand : listTarget()
+CG2StocksTracker ..> PortfolioBook : getActivePortfolio()
+CG2StocksTracker ..> Ui : showInsightsTable(portfolio, filterType, topN, showChart)
+Ui ..> Portfolio
 @enduml

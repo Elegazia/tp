@@ -69,13 +69,13 @@ class Storage {
   + loadPriceUpdates(csvPath: Path, portfolio: Portfolio)
 }
 
-Ui --> CG2StocksTracker
-CG2StocksTracker --> Parser
-Parser --> ParsedCommand
+CG2StocksTracker ..> Ui
+CG2StocksTracker ..> Parser
+Parser ..> ParsedCommand
 CG2StocksTracker --> PortfolioBook
-PortfolioBook --> Portfolio
-Portfolio --> Holding
+PortfolioBook *-- Portfolio
+Portfolio *-- Holding
 CG2StocksTracker --> Watchlist
-Watchlist --> WatchlistItem
-CG2StocksTracker --> Storage
+Watchlist *-- WatchlistItem
+CG2StocksTracker ..> Storage
 @enduml

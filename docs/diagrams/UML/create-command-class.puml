@@ -26,8 +26,8 @@ class Ui {
   + showMessage(message: String)
 }
 
-Parser --> ParsedCommand
-CG2StocksTracker --> PortfolioBook : createPortfolio(name)
-CG2StocksTracker --> Storage : save()
-CG2StocksTracker --> Ui : showMessage(...)
+Parser ..> ParsedCommand
+CG2StocksTracker ..> PortfolioBook : createPortfolio(name)
+CG2StocksTracker ..> Storage : save()
+CG2StocksTracker ..> Ui : showMessage(...)
 @enduml

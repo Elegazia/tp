@@ -157,7 +157,7 @@ public class Ui {
         for (Portfolio portfolio : portfolios) {
             System.out.println(portfolio.getName()
                     + " realized=" + formatSignedMoney(portfolio.getTotalRealizedPnl())
-                    + " unrealised=" + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
+                    + " unrealized=" + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
         }
     }
     
@@ -269,7 +269,7 @@ public class Ui {
         System.out.println("Portfolio: " + portfolio.getName());
         System.out.println("Current total value: " + formatMoney(portfolio.getCurrentTotalValue()));
         System.out.println("Realized P&L: " + formatSignedMoney(portfolio.getTotalRealizedPnl()));
-        System.out.println("Unrealised P&L by holding:");
+        System.out.println("Unrealized P&L by holding:");
         System.out.println(String.format("%-6s %-5s %8s %8s %8s %10s",
             "TICKR", "TYPE", "QTY", "AVG", "LAST", "U_PNL"));
         System.out.println("-------------------------------------------------------");
@@ -286,7 +286,7 @@ public class Ui {
                 formatSignedMoney(holding.getUnrealizedPnl())));
         }
 
-        System.out.println("Total unrealised P&L: " + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
+        System.out.println("Total unrealized P&L: " + formatSignedMoney(portfolio.getTotalUnrealizedPnl()));
     }
 
     /**

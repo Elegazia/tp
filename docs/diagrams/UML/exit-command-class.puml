@@ -13,5 +13,5 @@ class Ui {
   + showGoodbye()
 }
 
-CG2StocksTracker --> Ui : showGoodbye()
+CG2StocksTracker ..> Ui : showGoodbye()
 @enduml

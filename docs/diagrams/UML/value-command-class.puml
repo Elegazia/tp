@@ -31,8 +31,8 @@ class Ui {
   + showPortfolioValue(portfolio: Portfolio)
 }
 
-CG2StocksTracker --> PortfolioBook : getActivePortfolio()
-CG2StocksTracker --> Ui : showPortfolioValue(portfolio)
-Ui --> Portfolio
-Portfolio --> Holding
+CG2StocksTracker ..> PortfolioBook : getActivePortfolio()
+CG2StocksTracker ..> Ui : showPortfolioValue(portfolio)
+Ui ..> Portfolio
+Portfolio *-- Holding
 @enduml

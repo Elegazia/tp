@@ -17,6 +17,6 @@ class Ui {
   + showMessage(message: String)
 }
 
-CG2StocksTracker --> PortfolioBook : usePortfolio(name)
-CG2StocksTracker --> Ui : show active
+CG2StocksTracker ..> PortfolioBook : usePortfolio(name)
+CG2StocksTracker ..> Ui : show active
 @enduml
